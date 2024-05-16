@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "module": "Node16",
+        "moduleResolution": "Node16",
+        "target": "ES2022",
+        "strict": true,
+        "baseUrl": ".",
+        "noImplicitAny": false,
+        "rootDir": "./",
+        "outDir": "interpreter",
+        "strictNullChecks": true,
+        "skipLibCheck": true,
+        "strictFunctionTypes": true,
+    },
+    "exclude": [
+        "node_modules",
+    ]
+}

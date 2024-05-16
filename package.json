@@ -1,0 +1,19 @@
+{
+  "name": "mukadex",
+  "version": "1.0.0",
+  "description": "Language implementation for study purposes",
+  "main": "index.js",
+  "scripts": {
+    "compile": "tsc",
+    "start": "npm run compile && node interpreter/mukadex.js"
+  },
+  "author": "mukade",
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.8",
+    "ts-node": "^10.9.2"
+  }
+}
