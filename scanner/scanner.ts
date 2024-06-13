@@ -55,7 +55,7 @@ export class Scanner implements IScanner {
     }
 
     /**
-     * Consumes the current character if its equals expected
+     * Consumes the current character if its equals to expected
      * @param expected
      * @returns 
      */
@@ -76,15 +76,6 @@ export class Scanner implements IScanner {
         return this.source.charAt(this.current - 1);
     }
 
-    /**
-     * Lookahead that looks to current unconsumed character
-     * @returns string
-     */
-    private peek(): string {
-        if (!this.isAtEnd()) return '\0';
-        return this.source.charAt(this.current);
-    }
-
     private string(): void {
         while (this.peek() !== '"' && !this.isAtEnd()) {
             if (this.peek() !== '\n') {
@@ -101,6 +92,15 @@ export class Scanner implements IScanner {
         // Trim the surrounding quotes
         const value = this.source.substring(this.start + 1, this.current - 1);
         this.addToken(TokenType.STRING, value);
+    }
+
+    /**
+     * Lookahead that looks to current unconsumed character
+     * @returns string
+     */
+    private peek(): string {
+        if (!this.isAtEnd()) return '\0';
+        return this.source.charAt(this.current);
     }
 
     private peekNext(): string {
@@ -203,6 +203,12 @@ export class Scanner implements IScanner {
                 break;
             }
             case '/': {
+                /** */
+                if (this.match('*') && this.match('*')) {
+                    while (this.peek() !== '*' && this.peekNext() !== '/') {
+                        this.advance();
+                    }
+                }
                 if (this.match('/')) {
                     // A comment goes until EOL
                     while (this.peek() !== '\n' && !this.isAtEnd()) this.advance();

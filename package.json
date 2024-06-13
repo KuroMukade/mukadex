@@ -5,15 +5,15 @@
   "main": "index.js",
   "scripts": {
     "compile": "tsc",
-    "start": "npm run compile && node interpreter/mukadex.js"
+    "start": "npm run compile && node interpreter/mukadex.js",
+    "tool": "rm -rf ./Expr.ts && npm run compile && node interpreter/tool/tool.js",
+    "test": "node --test ./**/*test.js"
   },
   "author": "mukade",
   "license": "ISC",
-  "dependencies": {
-    "typescript": "^5.4.5"
-  },
   "devDependencies": {
     "@types/node": "^20.12.8",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   }
 }

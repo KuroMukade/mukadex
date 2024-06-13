@@ -17,7 +17,7 @@ export class Mukadex {
 
     private static runFile(path: string): void {
         const bytes = readFileSync(path);
-        console.log(bytes);
+        this.run(bytes.toString('utf-8'));
         if (this.hasError) {
             return;
         }
