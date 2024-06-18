@@ -31,7 +31,7 @@ export namespace Expr {
     readonly expression: Expr;
 
     accept<T>(visitor: Visitor<T>) {
-        return visitor.visitGroupingExpr(this as any);
+        return visitor.visitGroupingExpr(this);
     }
     constructor(expression: Expr) {
       this.expression = expression;
@@ -42,7 +42,7 @@ export namespace Expr {
     readonly value: Object;
 
     accept<T>(visitor: Visitor<T>) {
-        return visitor.visitLiteralExpr(this as any);
+        return visitor.visitLiteralExpr(this);
     }
     constructor(value: Object) {
       this.value = value;
@@ -54,7 +54,7 @@ export namespace Expr {
     readonly right: Expr;
 
     accept<T>(visitor: Visitor<T>) {
-        return visitor.visitUnaryExpr(this as any);
+        return visitor.visitUnaryExpr(this);
     }
     constructor(operator: Token, right: Expr) {
       this.operator = operator;
