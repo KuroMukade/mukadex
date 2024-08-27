@@ -21,7 +21,7 @@ export class AstPrinter implements Visitor<string> {
     }
 
     public visitGroupingExpr(expr: Expr.Grouping): string {
-        // return this.parenthesize(expr.lexeme, expr.left, expr.right);
+        return this.parenthesize(expr.lexeme, expr.left, expr.right);
     }
 
     public visitLiteralExpr(expr: Expr.Literal): string {

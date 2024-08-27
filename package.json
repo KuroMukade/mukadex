@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "compile": "tsc",
-    "start": "npm run compile && node interpreter/mukadex.js",
-    "tool": "rm -rf ./Expr.ts && npm run compile && node interpreter/tool/tool.js",
+    "start": "npm run compile && node dist/mukadex.js",
+    "tool": "rm -rf ./Expr.ts && npm run compile && node dist/tool/tool.js",
     "test": "node --test ./**/*test.js"
   },
   "author": "mukade",
