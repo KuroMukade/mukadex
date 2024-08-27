@@ -1,5 +1,9 @@
 import {readFileSync} from 'node:fs';
 import {Scanner} from './scanner/scanner';
+import { Token } from 'token/token';
+import { TokenType } from 'token/types';
+import { Parser } from 'parser/parser';
+import { AstPrinter } from 'printer/astPrinter';
 
 export class Mukadex {
     static hasError: boolean = false;
@@ -26,14 +30,22 @@ export class Mukadex {
     private static run(source: string): void {
         const scanner = new Scanner(source);
         const tokens = scanner.scanTokens();
-        for (const token of tokens) {
-            console.log(token);
-        }
+
+        const parser = new Parser(tokens);
+        const expression = parser.parse();
+
+        if (this.hasError || !expression) return;
+
+        console.log(new AstPrinter().print(expression));
     }
 
 
-    static error(line: number, message: string): void {
-        this.report(line, '', message);
+    static error(token: Token, message: string): void {
+        if (token.type === TokenType.EOF) {
+            this.report(token.line, ' at end', message);
+        } else {
+            this.report(token.line, ` at "${token.lexeme}"`, message);
+        }
     }
 
     private static report(line: number, where: string, message: string): void {
