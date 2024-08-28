@@ -1,4 +1,5 @@
 import { Expr, Visitor } from "Expr";
+import { Mukadex } from "mukadex";
 import { Token } from "token/token";
 import { TokenType } from "token/types";
 
@@ -12,7 +13,7 @@ class RuntimeException {
     }
 }
 
-class Interpreter implements Visitor<Object> {
+export class Interpreter implements Visitor<Object> {
     visitGroupingExpr(expr: Expr.Grouping): Object {
         return expr.expression;
     }
@@ -116,5 +117,29 @@ class Interpreter implements Visitor<Object> {
 
     private evaluate(expr: Expr): Object {
         return expr.accept(this);
+    }
+
+    private stringify(object: Object) {
+        if (object === null) return "nil";
+        if (object instanceof Number) {
+            let text = object.toString();
+
+            if (text.endsWith(".0")) {
+                text = text.substring(0, text.length - 2);
+            }
+
+            return text;
+        }
+
+        return object.toString();
+    }
+
+    interpret(expression: Expr) {
+        try {
+            const value = this.evaluate(expression);
+            console.log(this.stringify(value));
+        } catch (error) {
+            Mukadex.runtimeError(error);
+        }
     }
 }

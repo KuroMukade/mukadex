@@ -4,9 +4,13 @@ import { Token } from 'token/token';
 import { TokenType } from 'token/types';
 import { Parser } from 'parser/parser';
 import { AstPrinter } from 'printer/astPrinter';
+import { Interpreter } from 'interpreter/interpreter';
 
 export class Mukadex {
     static hasError: boolean = false;
+    static hadRuntimeError = false;
+    private static interpreter = new Interpreter();
+
 
     public static main(...args: string[]): void {
         if (args.length > 1) {
@@ -25,6 +29,7 @@ export class Mukadex {
         if (this.hasError) {
             return;
         }
+        if (this.hadRuntimeError) return;
     }
 
     private static run(source: string): void {
@@ -36,7 +41,8 @@ export class Mukadex {
 
         if (this.hasError || !expression) return;
 
-        console.log(new AstPrinter().print(expression));
+        // console.log(new AstPrinter().print(expression));
+        this.interpreter.interpret(expression);
     }
 
 
@@ -46,6 +52,10 @@ export class Mukadex {
         } else {
             this.report(token.line, ` at "${token.lexeme}"`, message);
         }
+    }
+
+    static runtimeError(error: RuntimeError) {
+        console.error(`{error.getMessage()}\n[line ${error.token.line}]`);
     }
 
     private static report(line: number, where: string, message: string): void {
