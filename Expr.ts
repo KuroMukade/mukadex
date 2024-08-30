@@ -8,7 +8,7 @@ export interface Visitor<T> {
 }
 
 export abstract class Expr {
-  abstract accept<T>(visitor: Visitor<T>): void;
+  abstract accept<T>(visitor: Visitor<T>): T;
 };
 
 export namespace Expr {
@@ -39,12 +39,12 @@ export namespace Expr {
   }
 
   export class Literal implements Expr {
-    readonly value: Object | null;
+    readonly value: Object;
 
     accept<T>(visitor: Visitor<T>) {
         return visitor.visitLiteralExpr(this);
     }
-    constructor(value: Object | null) {
+    constructor(value: Object) {
       this.value = value;
     }
   }

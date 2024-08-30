@@ -3,14 +3,12 @@ import {Scanner} from './scanner/scanner';
 import { Token } from 'token/token';
 import { TokenType } from 'token/types';
 import { Parser } from 'parser/parser';
-import { AstPrinter } from 'printer/astPrinter';
-import { Interpreter } from 'interpreter/interpreter';
+import { Interpreter, RuntimeException } from 'interpreter/interpreter';
 
 export class Mukadex {
     static hasError: boolean = false;
     static hadRuntimeError = false;
     private static interpreter = new Interpreter();
-
 
     public static main(...args: string[]): void {
         if (args.length > 1) {
@@ -41,7 +39,6 @@ export class Mukadex {
 
         if (this.hasError || !expression) return;
 
-        // console.log(new AstPrinter().print(expression));
         this.interpreter.interpret(expression);
     }
 
@@ -54,7 +51,7 @@ export class Mukadex {
         }
     }
 
-    static runtimeError(error: RuntimeError) {
+    static runtimeError(error: RuntimeException) {
         console.error(`{error.getMessage()}\n[line ${error.token.line}]`);
     }
 

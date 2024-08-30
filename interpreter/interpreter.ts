@@ -3,7 +3,7 @@ import { Mukadex } from "mukadex";
 import { Token } from "token/token";
 import { TokenType } from "token/types";
 
-class RuntimeException {
+export class RuntimeException {
     token: Token;
     message: string;
 
@@ -13,7 +13,7 @@ class RuntimeException {
     }
 }
 
-export class Interpreter implements Visitor<Object> {
+export class Interpreter implements Visitor<Object | null> {
     visitGroupingExpr(expr: Expr.Grouping): Object {
         return expr.expression;
     }
@@ -22,7 +22,7 @@ export class Interpreter implements Visitor<Object> {
         return expr.value;
     }
     
-    visitUnaryExpr(expr: Expr.Unary): Object {
+    visitUnaryExpr(expr: Expr.Unary) {
         const right: Object = this.evaluate(expr.right);
         
         switch (expr.operator.type) {
@@ -55,21 +55,24 @@ export class Interpreter implements Visitor<Object> {
                 return Number(left) * Number(right);
 
             case TokenType.PLUS:
-                if (left instanceof Number && right instanceof Number) {
+                if (typeof left === 'number' && typeof right === 'number') {
                     return Number(left) + Number(right);
                 }
 
-                if (left instanceof String && right instanceof String) {
+                if (typeof left === 'string' && typeof right === 'string') {
                     return String(left) + String(right);
                 }
-                
-                throw new RuntimeException(expr.operator, "Operands must be two numbers or two strings.");
+
+                const concatenatedValue = this.concatenate(left, right);
+                if (concatenatedValue) return concatenatedValue;
+
+                throw new RuntimeException(expr.operator, "Unsupported operands for addition.");
 
             case TokenType.GREATER:
                 this.checkNumberOperands(expr.operator, left, right);
                 return Number(left) > Number(right);
 
-            case TokenType.GREATER_EQUAL: 
+            case TokenType.GREATER_EQUAL:
                 this.checkNumberOperands(expr.operator, left, right);
                 return Number(left) >= Number(right);
 
@@ -86,19 +89,36 @@ export class Interpreter implements Visitor<Object> {
             
             case TokenType.EQUAL_EQUAL:
                 return this.isEqual(left, right);
+
+            default:
+                throw new RuntimeException(expr.operator, "Unsupported operator");
         }
     }
 
     private checkNumberOperand(operator: Token, operand: Object) {
-        if (operand instanceof Number) return;
+        if (typeof operand === 'number') return;
         throw new RuntimeException(operator, "Operand must be a number")
     }
 
-    private checkNumberOperands(operator: Token, left: Object, right: object) {
-        if (left instanceof Number && right instanceof Number) return;
+    private checkNumberOperands(operator: Token, left: Object, right: Object) {
+        if (typeof left === 'number' && typeof right === 'number') return;
+
+        if (operator.type === TokenType.SLASH && right === 0) {
+            throw new RuntimeException(operator, "Attempt to divide by zero");
+        }
+
         throw new RuntimeException(operator, "Operands must be numbers");
-    };
-    
+    }
+
+    private concatenate(left: Object, right: Object) {
+        if (typeof left === 'string' && typeof right === 'number') {
+            return left + right.toString();
+        }
+
+        if (typeof left === 'number' && typeof right === 'string') {
+            return left.toString() + right;
+        }
+    }
 
     private isEqual(a: Object, b: Object) {
         // TODO
@@ -111,17 +131,17 @@ export class Interpreter implements Visitor<Object> {
     */
     private isTruthy(object: Object): boolean {
         if (object === null) return true;
-        if (object instanceof Boolean) return Boolean(object);
+        if (typeof object === 'boolean') return Boolean(object);
         return true;
     }
 
     private evaluate(expr: Expr): Object {
-        return expr.accept(this);
+        return expr.accept<Object>(this as Visitor<Object>);
     }
 
     private stringify(object: Object) {
         if (object === null) return "nil";
-        if (object instanceof Number) {
+        if (typeof object === 'number') {
             let text = object.toString();
 
             if (text.endsWith(".0")) {
@@ -138,8 +158,12 @@ export class Interpreter implements Visitor<Object> {
         try {
             const value = this.evaluate(expression);
             console.log(this.stringify(value));
+            return this.stringify(value);
         } catch (error) {
-            Mukadex.runtimeError(error);
+            if (error instanceof RuntimeException) {
+                return Mukadex.runtimeError(error);
+            }
+            throw new Error('Unhandled exception');
         }
     }
 }
