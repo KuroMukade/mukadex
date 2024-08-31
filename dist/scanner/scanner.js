@@ -1,7 +1,9 @@
-import { Mukadex } from "../mukadex";
-import { Token } from "../token/token";
-import { TokenType } from "../token/types";
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Scanner = void 0;
+const mukadex_1 = require("../mukadex");
+const token_1 = require("../token/token");
+const types_1 = require("../token/types");
 const getKeywords = () => {
     const keywords = new Map();
     keywords.set("and", 'AND');
@@ -21,62 +23,51 @@ const getKeywords = () => {
     keywords.set("var", 'VAR');
     keywords.set("while", 'WHILE');
     return keywords;
-}
-
-export interface IScanner {
-    scanTokens(): Token[];
-}
-
-export class Scanner implements IScanner {
-    private readonly source: string;
-    private readonly tokens: Token[] = [];
-    private start: number = 0;
-    private current: number = 0;
-    private line: number = 1;
-
+};
+class Scanner {
+    source;
+    tokens = [];
+    start = 0;
+    current = 0;
+    line = 1;
     static keywords = getKeywords();
-
-    constructor(source: string) {
+    constructor(source) {
         this.source = source;
     }
-
-    private isAtEnd(): boolean {
+    isAtEnd() {
         return this.current >= this.source.length;
     }
-
     /**
      * Grabs the text of the current lexeme and creates a new token for it
-     * @param {TokenType} token token 
+     * @param {TokenType} token token
      * @param literal
      */
-    private addToken(type: TokenType, literal?: any): void {
+    addToken(type, literal) {
         const text = this.source.substring(this.start, this.current);
-        this.tokens.push(new Token(type, text, literal, this.line));
+        this.tokens.push(new token_1.Token(type, text, literal, this.line));
     }
-
     /**
      * Consumes the current character if its equals to expected
      * @param expected
-     * @returns 
+     * @returns
      */
-    private match(expected: string): boolean {
-        if (this.isAtEnd()) return false;
-        if (this.source.charAt(this.current) !== expected) return false;
-
+    match(expected) {
+        if (this.isAtEnd())
+            return false;
+        if (this.source.charAt(this.current) !== expected)
+            return false;
         this.current += 1;
         return true;
     }
-
     /**
      * Consumes the next character in the source file
      * @returns {string} next character in source file
      */
-    private advance(): string {
+    advance() {
         this.current += 1;
         return this.source.charAt(this.current - 1);
     }
-
-    private string(): void {
+    string() {
         while (this.peek() !== '"' && !this.isAtEnd()) {
             if (this.peek() !== '\n') {
                 this.line += 1;
@@ -84,122 +75,133 @@ export class Scanner implements IScanner {
             this.advance();
         }
         if (this.isAtEnd()) {
-            Mukadex.error(this.tokens?.[this.current], 'Unterminated string.');
+            mukadex_1.Mukadex.error(this.tokens?.[this.current], 'Unterminated string.');
             return;
         }
         // The closing "
         this.advance();
         // Trim the surrounding quotes
         const value = this.source.substring(this.start + 1, this.current - 1);
-        this.addToken(TokenType.STRING, value);
+        this.addToken(types_1.TokenType.STRING, value);
     }
-
     /**
      * Lookahead that looks to current unconsumed character
      * @returns string
      */
-    private peek(): string {
-        if (!this.isAtEnd()) return '\0';
+    peek() {
+        if (!this.isAtEnd())
+            return '\0';
         return this.source.charAt(this.current);
     }
-
-    private peekNext(): string {
-        if (this.current + 1 >= this.source.length) return '\0';
+    peekNext() {
+        if (this.current + 1 >= this.source.length)
+            return '\0';
         return this.source.charAt(this.current + 1);
     }
-
     /** */
-    private number() {
-        while(this.isDigit(this.peek())) {
+    number() {
+        while (this.isDigit(this.peek())) {
             this.advance();
         }
         if (this.peek() === '.' && this.isDigit(this.peekNext())) {
             // consume the "."
             this.advance();
-            while(this.isDigit(this.peek())) {
+            while (this.isDigit(this.peek())) {
                 this.advance();
-            };
+            }
+            ;
         }
-        this.addToken(
-            TokenType.NUMBER,
-            this.source.substring(this.start, this.current),
-        );
+        this.addToken(types_1.TokenType.NUMBER, this.source.substring(this.start, this.current));
     }
-
     /** */
-    private isDigit(character: string) {
+    isDigit(character) {
         return character >= '0' && character <= '9';
     }
-    
-
-    private isAlphaNumeric(character: string): boolean {
+    isAlphaNumeric(character) {
         return this.isAlpha(character) || this.isDigit(character);
     }
-
-    private isAlpha(character: string): boolean {
+    isAlpha(character) {
         return (character >= 'a' && character <= 'z') ||
-        (character >= 'A' && character <= 'Z') ||
-        character == '_';
+            (character >= 'A' && character <= 'Z') ||
+            character == '_';
     }
-
-    private identifier(): void {
+    identifier() {
         while (this.isAlphaNumeric(this.peek())) {
             this.advance();
         }
         const text = this.source.substring(this.start, this.current);
         let type = Scanner.keywords.get(text);
         if (type === null) {
-            type = TokenType.IDENTIFIER;
+            type = types_1.TokenType.IDENTIFIER;
         }
         this.addToken(type);
     }
-
     /**
      * Consumes the next character and picks a token type for it
      */
     scanToken() {
         const character = this.advance();
         switch (character) {
-            case '(': this.addToken(TokenType.LEFT_PAREN); break;
-            case ')': this.addToken(TokenType.RIGHT_PAREN); break;
-            case '{': this.addToken(TokenType.LEFT_BRACE); break;
-            case '}': this.addToken(TokenType.RIGHT_BRACE); break;
-            case ',': this.addToken(TokenType.COMMA); break;
-            case '.': this.addToken(TokenType.DOT); break;
-            case '-': this.addToken(TokenType.MINUS); break;
-            case '+': this.addToken(TokenType.PLUS); break;
-            case ';': this.addToken(TokenType.SEMICOLON); break;
-            case '*': this.addToken(TokenType.STAR); break;
+            case '(':
+                this.addToken(types_1.TokenType.LEFT_PAREN);
+                break;
+            case ')':
+                this.addToken(types_1.TokenType.RIGHT_PAREN);
+                break;
+            case '{':
+                this.addToken(types_1.TokenType.LEFT_BRACE);
+                break;
+            case '}':
+                this.addToken(types_1.TokenType.RIGHT_BRACE);
+                break;
+            case ',':
+                this.addToken(types_1.TokenType.COMMA);
+                break;
+            case '.':
+                this.addToken(types_1.TokenType.DOT);
+                break;
+            case '-':
+                this.addToken(types_1.TokenType.MINUS);
+                break;
+            case '+':
+                this.addToken(types_1.TokenType.PLUS);
+                break;
+            case ';':
+                this.addToken(types_1.TokenType.SEMICOLON);
+                break;
+            case '*':
+                this.addToken(types_1.TokenType.STAR);
+                break;
             case '!': {
                 if (this.match('=')) {
-                    this.addToken(TokenType.BANG_EQUAL);
+                    this.addToken(types_1.TokenType.BANG_EQUAL);
                     break;
                 }
-                this.addToken(TokenType.BANG);
+                this.addToken(types_1.TokenType.BANG);
                 break;
             }
             case '<': {
                 if (this.match('=')) {
-                    this.addToken(TokenType.LESS_EQUAL);
+                    this.addToken(types_1.TokenType.LESS_EQUAL);
                     break;
                 }
-                this.addToken(TokenType.LESS);
+                this.addToken(types_1.TokenType.LESS);
                 break;
             }
             case '>': {
                 if (this.match('=')) {
-                    this.addToken(TokenType.GREATER_EQUAL);
+                    this.addToken(types_1.TokenType.GREATER_EQUAL);
                     break;
                 }
-                this.addToken(TokenType.GREATER);
+                this.addToken(types_1.TokenType.GREATER);
                 break;
             }
             case '=': {
                 if (this.match('=')) {
-                    this.addToken(TokenType.EQUAL_EQUAL);
+                    this.addToken(types_1.TokenType.EQUAL_EQUAL);
                     break;
                 }
-                this.addToken(TokenType.EQUAL);
+                this.addToken(types_1.TokenType.EQUAL);
                 break;
             }
             case '/': {
@@ -211,9 +213,10 @@ export class Scanner implements IScanner {
                 }
                 if (this.match('/')) {
                     // A comment goes until EOL
-                    while (this.peek() !== '\n' && !this.isAtEnd()) this.advance();
+                    while (this.peek() !== '\n' && !this.isAtEnd())
+                        this.advance();
                 }
-                this.addToken(TokenType.SLASH);
+                this.addToken(types_1.TokenType.SLASH);
                 break;
             }
             case ' ':
@@ -223,7 +226,9 @@ export class Scanner implements IScanner {
             case '\n':
                 this.line += 1;
                 break;
-            case '"': this.string(); break;
+            case '"':
+                this.string();
+                break;
             default: {
                 if (this.isDigit(character)) {
                     this.number();
@@ -233,19 +238,18 @@ export class Scanner implements IScanner {
                     this.identifier();
                     break;
                 }
-
-                Mukadex.error(this.tokens?.[this.current], 'Unexpected character at line (?)');
+                mukadex_1.Mukadex.error(this.tokens?.[this.current], 'Unexpected character at line (?)');
                 break;
             }
         }
     }
-
-    scanTokens(): Token[] {
+    scanTokens() {
         while (!this.isAtEnd()) {
             this.start = this.current;
             this.scanToken();
         }
-        this.tokens.push(new Token(TokenType.EOF, "", null, this.line));
+        this.tokens.push(new token_1.Token(types_1.TokenType.EOF, "", null, this.line));
         return this.tokens;
     }
 }
+exports.Scanner = Scanner;

@@ -8,7 +8,7 @@
         "baseUrl": ".",
         "noImplicitAny": false,
         "rootDir": "./",
-        "outDir": "interpreter",
+        "outDir": "dist",
         "strictNullChecks": true,
         "skipLibCheck": true,
         "strictFunctionTypes": true,

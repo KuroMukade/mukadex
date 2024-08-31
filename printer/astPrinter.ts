@@ -21,11 +21,11 @@ export class AstPrinter implements Visitor<string> {
     }
 
     public visitGroupingExpr(expr: Expr.Grouping): string {
-        return this.parenthesize(expr.lexeme, expr.left, expr.right);
+        return this.parenthesize('group', expr.expression);
     }
 
     public visitLiteralExpr(expr: Expr.Literal): string {
-        if (expr.value == null) return "null";
+        if (expr.value == null) return "nil";
         return expr.value.toString();
     }
 

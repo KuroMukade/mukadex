@@ -21,6 +21,7 @@ export class Mukadex {
         }
     }
 
+
     private static runFile(path: string): void {
         const bytes = readFileSync(path);
         this.run(bytes.toString('utf-8'));
