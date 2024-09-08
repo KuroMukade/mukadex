@@ -20,7 +20,7 @@ import { TokenType } from "token/types";
  * unary -> ( '!' | '-' ) unary | primary
  * 
  * Contains all literals and grouping expressions:
- * primary -> NUMBER STRING true false NIL | '(' expression ')'
+ * primary -> NUMBER STRING true false NIL | '(' expression ')' | IDENTIFIER
  * 
  * each rule needs to match expressions at that precedence level or higher
  * 
@@ -141,6 +141,10 @@ export class Parser {
             const expr: Expr = this.expression();
             this.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
+        }
+
+        if (this.match(TokenType.IDENTIFIER)) {
+            
         }
 
         throw this.error(this.peek(), "Expected expression.");

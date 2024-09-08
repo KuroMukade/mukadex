@@ -1,4 +1,4 @@
-import {createWriteStream} from "fs";
+import {createWriteStream, WriteStream} from "fs";
 
 interface Writer {
     write: (text: string) => void;
@@ -10,16 +10,19 @@ export class GenerateAst {
             throw new Error("Usage: generate_ast <output directory>");
         }
         const outputDir: string = args[0];
+
         this.defineAst(outputDir, "Expr", [
             "Binary : Expr left, Token operator, Expr right",
             "Grouping : Expr expression",
             "Literal : Object value",
-            "Unary : Token operator, Expr right"
+            "Unary : Token operator, Expr right",
+            "Variable : Token name",
         ]);
 
         this.defineAst(outputDir, "Stmt", [
             "Expression : Expr expression",
             "Print : Expr expression",
+            "Var : Token name, Expr initializer",
         ]);
     }
 
@@ -79,14 +82,18 @@ export class GenerateAst {
 
         writer.write('\n');
 
+        writer.write(`export abstract class ${baseName} {\n`);
+        writer.write("\n");
+        writer.write(`  abstract accept<T>(visitor: Visitor<T>): T`);
+        writer.write("\n");
+        writer.write(`};`);
+
         this.defineVisitor(writer, baseName, types);
         writer.write('\n');
-
-        writer.write(`export abstract class ${baseName} {\n`);
         
         writer.write('    abstract accept<T>(visitor: Visitor<T>): void;\n');
         writer.write('\n');
-        
+
         // The AST classes
         for (const type of types) {
             const className = type.split(":")[0].trim();
@@ -102,4 +109,4 @@ export class GenerateAst {
     };
 }
 
-const tool = new GenerateAst(['./']);
+const tool = new GenerateAst(['./codegen']);
