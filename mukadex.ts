@@ -36,11 +36,11 @@ export class Mukadex {
         const tokens = scanner.scanTokens();
 
         const parser = new Parser(tokens);
-        const expression = parser.parse();
+        const statements = parser.parse();
 
-        if (this.hasError || !expression) return;
+        if (this.hasError) return;
 
-        this.interpreter.interpret(expression);
+        this.interpreter.interpret(statements);
     }
 
 

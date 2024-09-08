@@ -1,7 +1,31 @@
 import { Expr } from "Expr";
 import { Mukadex } from "mukadex";
+import { Stmt } from "Stmt";
 import { Token } from "token/token";
 import { TokenType } from "token/types";
+
+/**
+ * Precedence levels:
+ * 
+ * expression -> equality
+ * 
+ * equality -> comparison ( ( "!=" | "==" ) comparison )* ;
+ * 
+ * comparison -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+ * 
+ * term -> factor ( ( "-" | "+" ) factor )* ;
+ * 
+ * factor -> unary ( ( '/' | '*' ) unary )*
+ * 
+ * unary -> ( '!' | '-' ) unary | primary
+ * 
+ * Contains all literals and grouping expressions:
+ * primary -> NUMBER STRING true false NIL | '(' expression ')'
+ * 
+ * each rule needs to match expressions at that precedence level or higher
+ * 
+ * "*" or "+" while or for loop
+ */
 
 class ParseError extends Error {
         
@@ -22,8 +46,9 @@ export class Parser {
     private equality() {
         let expr: Expr = this.comparison();
 
-        /** ( !== | == ) and ()* is the while loop
-         * */
+        /**
+         * ( !== | == ) and ()* is the while loop
+        */
         while (this.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
             const operator: Token = this.previous();
             const right: Expr = this.comparison();
@@ -121,12 +146,31 @@ export class Parser {
         throw this.error(this.peek(), "Expected expression.");
     }
 
-    parse(): Expr | null {
-        try {
-            return this.expression();
-        } catch (error) {
-            return null;
+    statement(): Stmt {
+        if (this.match(TokenType.PRINT)) return this.printStatement();
+
+        return this.expressionStatement();
+    }
+
+    printStatement(): Stmt {
+        const expr = this.expression();
+        this.consume(TokenType.SEMICOLON, "Expect ';' after value.");
+        return new Stmt.Print(expr);
+    }
+
+    expressionStatement(): Stmt {
+        const expr = this.expression();
+        this.consume(TokenType.SEMICOLON, "Expect ':' after expression.");
+        return new Stmt.Expression(expr);
+    }
+
+    parse(): Stmt[] {
+        const statements: Stmt[] = [];
+        while (!this.isAtEnd()) {
+            statements.push(this.statement());
         }
+
+        return statements;
     }
 
     private unary(): Expr {

@@ -29,7 +29,7 @@ export class GenerateAst {
         for (const type of types) {
             const typeName = type.split(':')[0].trim();
             console.log(type);
-            writer.write(`    visit${typeName}${baseName}(${baseName.toLowerCase()}: typeof Expr.${typeName}): T;\n`);
+            writer.write(`    visit${typeName}${baseName}(${baseName.toLowerCase()}: Expr.${typeName}): T;\n`);
         }
 
         writer.write("}\n")
