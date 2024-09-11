@@ -1,5 +1,6 @@
 import { Expr, Visitor as ExprVisitor } from "Expr";
 import { Stmt, Visitor as StmtVisitor } from "Stmt";
+import { Environment } from "environment/environment";
 
 import { Mukadex } from "mukadex";
 import { Token } from "token/token";
@@ -16,6 +17,26 @@ export class RuntimeException {
 }
 
 export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void> {
+    private environment = new Environment();
+
+    visitVarStmt(stmt: Stmt.Var): void {
+        let value: Object | null = null;
+        if (stmt.initializer !== null) {
+            value = this.evaluate(stmt.initializer);
+        }
+
+        /**
+         * We pass null to assign value to he var by default
+         * var a;
+         * print a; // "nil"
+         */
+        this.environment.define(stmt.name.lexeme, value);
+    }
+
+    visitVariableExpr(expr: Expr.Variable): Object | null {
+        
+    }
+
     visitGroupingExpr(expr: Expr.Grouping): Object {
         return expr.expression;
     }
