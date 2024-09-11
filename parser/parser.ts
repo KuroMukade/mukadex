@@ -144,7 +144,7 @@ export class Parser {
         }
 
         if (this.match(TokenType.IDENTIFIER)) {
-
+            return new Expr.Variable(this.previous());
         }
 
         throw this.error(this.peek(), "Expected expression.");
@@ -171,10 +171,33 @@ export class Parser {
     parse(): Stmt[] {
         const statements: Stmt[] = [];
         while (!this.isAtEnd()) {
-            statements.push(this.statement());
+            statements.push(this.declaration());
         }
 
         return statements;
+    }
+
+    private declaration(): Stmt | null {
+        try {
+            if (this.match(TokenType.VAR)) return this.varDeclaration();
+            return this.statement();
+        } catch (e) {
+            if (e instanceof ParseError) {
+                this.synchronize();
+            }
+            return null;
+        }
+    }
+
+    private varDeclaration(): Stmt {
+        const name: Token = this.consume(TokenType.IDENTIFIER, "Expect variable name.");
+        let initializer: Expr | null = null; 
+        if (this.match(TokenType.EQUAL)) {
+            initializer = this.expression();
+        }
+
+        this.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+        return new Stmt.Var(name, initializer);
     }
 
     private unary(): Expr {

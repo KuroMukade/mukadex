@@ -38,13 +38,13 @@ export namespace Stmt {
 
     export class Var implements Stmt {
       readonly name: Token;
-      readonly initializer: Expr;
+      readonly initializer: Expr | null;
 
       accept<T>(visitor: Visitor<T>) {
           return visitor.visitVarStmt(this as any);
       }
 
-      constructor(name: Token, initializer: Expr) {
+      constructor(name: Token, initializer: Expr | null) {
         this.name = name;
         this.initializer = initializer;
       }
