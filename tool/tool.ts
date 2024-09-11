@@ -17,14 +17,17 @@ export class GenerateAst {
             "Literal : Object value",
             "Unary : Token operator, Expr right",
             "Variable : Token name",
-        ]);
+        ], [{from: 'token/token', what: 'Token'}]);
 
         this.defineAst(outputDir, "Stmt", [
             "Expression : Expr expression",
             "Print : Expr expression",
             "Var : Token name, Expr initializer",
+        ], [
+            {from: 'Expr', what: 'Expr'},
+            {from: 'token/token', what: 'Token'},
         ]);
-    }
+        }
 
     private defineVisitor(writer: Writer, baseName: string, types: string[]) {
         writer.write("export interface Visitor<T> {\n");
@@ -32,14 +35,14 @@ export class GenerateAst {
         for (const type of types) {
             const typeName = type.split(':')[0].trim();
             console.log(type);
-            writer.write(`    visit${typeName}${baseName}(${baseName.toLowerCase()}: Expr.${typeName}): T;\n`);
+            writer.write(`    visit${typeName}${baseName}(${baseName.toLowerCase()}: ${baseName}.${typeName}): T;\n`);
         }
 
         writer.write("}\n")
     }
 
     private defineType(writer: Writer, baseName: string, className: string, fieldList: string) {
-        writer.write(`    static ${className} = class ${baseName} {\n`);
+        writer.write(`    export class ${className} implements ${baseName} {\n`);
 
         // Store parameters in fields
         const fields: string[] = fieldList.split(', ');
@@ -60,8 +63,7 @@ export class GenerateAst {
 
         writer.write(`      accept<T>(visitor: Visitor<T>) {\n`);
         writer.write(`          return visitor.visit${className}${baseName}(this as any);\n`);
-        writer.write(`      }`);
-
+        writer.write(`      }\n`);
         writer.write('\n');
         writer.write(`      constructor(${formattedFields.join(', ')}) {\n`);
 
@@ -71,29 +73,35 @@ export class GenerateAst {
         }
         writer.write('      }\n');
         writer.write('    }\n');
+        writer.write('\n');
     }
 
-    private defineAst(outputDir: string, baseName: string, types: string[]) {
+    private defineAst(outputDir: string, baseName: string, types: string[], imports?: Array<{from: string, what: string, isDefault?: boolean}>) {
         const path = `${outputDir}/${baseName}.ts`;
 
         const writer = createWriteStream(path, {flags: 'a'});
-    
-        writer.write("import { Token } from 'token/token';\n");
 
-        writer.write('\n');
+        if (imports) {
+            for (const {from, isDefault, what} of imports) {
+                let importName = `{${what}}`;
+                if (isDefault) importName = what;
 
-        writer.write(`export abstract class ${baseName} {\n`);
+                writer.write(`import ${importName} from "${from}"\n`);
+            }
+        }
+
         writer.write("\n");
+        writer.write(`export abstract class ${baseName} {\n`);
         writer.write(`  abstract accept<T>(visitor: Visitor<T>): T`);
         writer.write("\n");
         writer.write(`};`);
+        writer.write("\n");
+        writer.write("\n");
 
         this.defineVisitor(writer, baseName, types);
-        writer.write('\n');
-        
-        writer.write('    abstract accept<T>(visitor: Visitor<T>): void;\n');
-        writer.write('\n');
+        writer.write("\n");
 
+        writer.write(`export namespace ${baseName} {\n`);
         // The AST classes
         for (const type of types) {
             const className = type.split(":")[0].trim();

@@ -32,4 +32,8 @@ export class AstPrinter implements Visitor<string> {
     public visitUnaryExpr(expr: Expr.Unary): string {
         return this.parenthesize(expr.operator.lexeme, expr.right);
     }
+
+    public visitVariableExpr(expr: Expr.Variable): string {
+        return '';
+    }
 }

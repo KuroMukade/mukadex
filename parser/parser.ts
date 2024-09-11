@@ -144,7 +144,7 @@ export class Parser {
         }
 
         if (this.match(TokenType.IDENTIFIER)) {
-            
+
         }
 
         throw this.error(this.peek(), "Expected expression.");
