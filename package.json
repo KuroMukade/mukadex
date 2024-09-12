@@ -6,7 +6,7 @@
   "scripts": {
     "compile": "tsc",
     "start": "npm run compile && node dist/mukadex.js",
-    "tool": "npm run compile && node dist/tool/tool.js",
+    "tool": "node dist/tool/tool.js",
     "test": "node --test ./**/*test.js"
   },
   "author": "mukade",

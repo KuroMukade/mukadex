@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Interpreter = exports.RuntimeException = void 0;
+const environment_1 = require("environment/environment");
 const mukadex_1 = require("mukadex");
 const types_1 = require("token/types");
 class RuntimeException {
@@ -13,8 +14,33 @@ class RuntimeException {
 }
 exports.RuntimeException = RuntimeException;
 class Interpreter {
+    environment = new environment_1.Environment();
+    visitVarStmt(stmt) {
+        let value = null;
+        if (stmt.initializer !== null) {
+            value = this.evaluate(stmt.initializer);
+        }
+        /**
+         * We pass null to assign value to he var by default
+         * var a;
+         * print a; // "nil"
+         */
+        this.environment.define(stmt.name.lexeme, value);
+    }
+    visitVariableExpr(expr) {
+        return this.environment.get(expr.name);
+    }
     visitGroupingExpr(expr) {
         return expr.expression;
+    }
+    visitExpressionStmt(stmt) {
+        this.evaluate(stmt.expression);
+        return;
+    }
+    visitPrintStmt(stmt) {
+        const value = this.evaluate(stmt.expression);
+        console.log(this.stringify(value));
+        return;
     }
     visitLiteralExpr(expr) {
         return expr.value;
@@ -126,11 +152,14 @@ class Interpreter {
         }
         return object.toString();
     }
-    interpret(expression) {
+    execute(stmt) {
+        stmt.accept(this);
+    }
+    interpret(statements) {
         try {
-            const value = this.evaluate(expression);
-            console.log(this.stringify(value));
-            return this.stringify(value);
+            for (const statement of statements) {
+                this.execute(statement);
+            }
         }
         catch (error) {
             if (error instanceof RuntimeException) {

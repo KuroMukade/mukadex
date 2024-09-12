@@ -12,6 +12,7 @@ export class GenerateAst {
         const outputDir: string = args[0];
 
         this.defineAst(outputDir, "Expr", [
+            "Assign : Token name, Expr value",
             "Binary : Expr left, Token operator, Expr right",
             "Grouping : Expr expression",
             "Literal : Object value",
@@ -117,4 +118,4 @@ export class GenerateAst {
     };
 }
 
-const tool = new GenerateAst(['./codegen']);
+const tool = new GenerateAst(['./']);

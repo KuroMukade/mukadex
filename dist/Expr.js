@@ -52,4 +52,15 @@ exports.Expr = Expr;
         }
     }
     Expr.Unary = Unary;
+    class Variable {
+        name;
+        accept(visitor) {
+            return visitor.visitVariableExpr(this);
+        }
+        constructor(name) {
+            this.name = name;
+        }
+    }
+    Expr.Variable = Variable;
 })(Expr || (exports.Expr = Expr = {}));
+;

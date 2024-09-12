@@ -1,4 +1,4 @@
-import { Expr, Visitor } from "Expr";
+import { Expr, Visitor } from "codegen/Expr";
 
 export class AstPrinter implements Visitor<string> {
     private parenthesize(name: string, ...exprs: Expr[]): string {

@@ -246,10 +246,45 @@ export class Parser {
     }
 
     /**
+     * There are l-values and r-values
+     * 
+     * The l-value "evaluates" to a storage location that you can assign it to
+     * 
+     * var dog = 'bobik';    --  l value
+     * dog = 'rex';          --  r value
+     * 
+     * In this example we don't know what the l-value is before we hit the "=".
+     * 
+     * makeList().head.next = node;
+     * 
+     * We can parse left hand side as an expression and turn it to assignment if needed
+     * 
+     * If the left-hand side expression isn't a valid assignment target we'll fail with error:
+     * 
+     * a + b = c;
+     * 
+     */
+    private assignment() {
+        const expr: Expr = this.equality();
+
+        if (!this.match(TokenType.EQUAL)) return expr;
+
+        const equals: Token = this.previous();
+        const value = this.assignment();
+
+        if (expr instanceof Expr.Variable) {
+            const name = new Expr.Variable(expr.name).name;
+            return new Expr.Assign(name, value);
+        }
+
+        return this.error(equals, "Invalid assignment target.");
+    }
+
+    /**
      * Expands to the equality rule
      * @returns 
      */
     private expression() {
-        return this.equality();
+        return this.assignment();
     }
 }

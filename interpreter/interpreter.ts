@@ -19,6 +19,12 @@ export class RuntimeException {
 export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void> {
     private environment = new Environment();
 
+    visitAssignExpr(expr: Expr.Assign): Object | null {
+        const value = this.evaluate(expr.value);
+        this.environment.assign(expr.name, value);
+        return value;
+    }
+
     visitVarStmt(stmt: Stmt.Var): void {
         let value: Object | null = null;
         if (stmt.initializer !== null) {
@@ -34,7 +40,7 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
     }
 
     visitVariableExpr(expr: Expr.Variable): Object | null {
-        
+        return this.environment.get(expr.name);
     }
 
     visitGroupingExpr(expr: Expr.Grouping): Object {

@@ -1,9 +1,32 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Parser = void 0;
-const Expr_1 = require("Expr");
+const Expr_1 = require("codegen/Expr");
 const mukadex_1 = require("mukadex");
+const Stmt_1 = require("codegen/Stmt");
 const types_1 = require("token/types");
+/**
+ * Precedence levels:
+ *
+ * expression -> equality
+ *
+ * equality -> comparison ( ( "!=" | "==" ) comparison )* ;
+ *
+ * comparison -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+ *
+ * term -> factor ( ( "-" | "+" ) factor )* ;
+ *
+ * factor -> unary ( ( '/' | '*' ) unary )*
+ *
+ * unary -> ( '!' | '-' ) unary | primary
+ *
+ * Contains all literals and grouping expressions:
+ * primary -> NUMBER STRING true false NIL | '(' expression ')' | IDENTIFIER
+ *
+ * each rule needs to match expressions at that precedence level or higher
+ *
+ * "*" or "+" while or for loop
+ */
 class ParseError extends Error {
 }
 class Parser {
@@ -18,8 +41,9 @@ class Parser {
      */
     equality() {
         let expr = this.comparison();
-        /** ( !== | == ) and ()* is the while loop
-         * */
+        /**
+         * ( !== | == ) and ()* is the while loop
+        */
         while (this.match(types_1.TokenType.BANG_EQUAL, types_1.TokenType.EQUAL_EQUAL)) {
             const operator = this.previous();
             const right = this.comparison();
@@ -103,15 +127,54 @@ class Parser {
             this.consume(types_1.TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr_1.Expr.Grouping(expr);
         }
+        if (this.match(types_1.TokenType.IDENTIFIER)) {
+            return new Expr_1.Expr.Variable(this.previous());
+        }
         throw this.error(this.peek(), "Expected expression.");
     }
+    statement() {
+        if (this.match(types_1.TokenType.PRINT))
+            return this.printStatement();
+        return this.expressionStatement();
+    }
+    printStatement() {
+        const expr = this.expression();
+        this.consume(types_1.TokenType.SEMICOLON, "Expect ';' after value.");
+        return new Stmt_1.Stmt.Print(expr);
+    }
+    expressionStatement() {
+        const expr = this.expression();
+        this.consume(types_1.TokenType.SEMICOLON, "Expect ':' after expression.");
+        return new Stmt_1.Stmt.Expression(expr);
+    }
     parse() {
-        try {
-            return this.expression();
+        const statements = [];
+        while (!this.isAtEnd()) {
+            statements.push(this.declaration());
         }
-        catch (error) {
+        return statements;
+    }
+    declaration() {
+        try {
+            if (this.match(types_1.TokenType.VAR))
+                return this.varDeclaration();
+            return this.statement();
+        }
+        catch (e) {
+            if (e instanceof ParseError) {
+                this.synchronize();
+            }
             return null;
         }
+    }
+    varDeclaration() {
+        const name = this.consume(types_1.TokenType.IDENTIFIER, "Expect variable name.");
+        let initializer = null;
+        if (this.match(types_1.TokenType.EQUAL)) {
+            initializer = this.expression();
+        }
+        this.consume(types_1.TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+        return new Stmt_1.Stmt.Var(name, initializer);
     }
     unary() {
         if (this.match(types_1.TokenType.BANG, types_1.TokenType.MINUS)) {

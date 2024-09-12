@@ -1,4 +1,5 @@
 import { RuntimeException } from "interpreter/interpreter";
+import { toNamespacedPath } from "path/posix";
 import { Token } from "token/token";
 
 export class Environment {
@@ -9,6 +10,18 @@ export class Environment {
      * should refer to the same variable (ignoring scope at this point)
      */
     private readonly values = new Map<string, Object | null>();
+
+    /**
+     * Assignment is not allowed to create new variable
+     */
+    assign(name: Token, value: Object | null) {
+        if (this.values.has(name.lexeme)) {
+            this.values.set(name.lexeme, value);
+            return;
+        }
+
+        throw new RuntimeException(name, `Undefined variable ${name.lexeme}.`);
+    }
 
     define(name: string, value: Object | null): void {
         this.values.set(name, value);

@@ -9,14 +9,20 @@ class GenerateAst {
         }
         const outputDir = args[0];
         this.defineAst(outputDir, "Expr", [
+            "Assign : Token name, Expr value",
             "Binary : Expr left, Token operator, Expr right",
             "Grouping : Expr expression",
             "Literal : Object value",
-            "Unary : Token operator, Expr right"
-        ]);
+            "Unary : Token operator, Expr right",
+            "Variable : Token name",
+        ], [{ from: 'token/token', what: 'Token' }]);
         this.defineAst(outputDir, "Stmt", [
             "Expression : Expr expression",
             "Print : Expr expression",
+            "Var : Token name, Expr initializer",
+        ], [
+            { from: 'Expr', what: 'Expr' },
+            { from: 'token/token', what: 'Token' },
         ]);
     }
     defineVisitor(writer, baseName, types) {
@@ -24,12 +30,12 @@ class GenerateAst {
         for (const type of types) {
             const typeName = type.split(':')[0].trim();
             console.log(type);
-            writer.write(`    visit${typeName}${baseName}(${baseName.toLowerCase()}: typeof Expr.${typeName}): T;\n`);
+            writer.write(`    visit${typeName}${baseName}(${baseName.toLowerCase()}: ${baseName}.${typeName}): T;\n`);
         }
         writer.write("}\n");
     }
     defineType(writer, baseName, className, fieldList) {
-        writer.write(`    static ${className} = class ${baseName} {\n`);
+        writer.write(`    export class ${className} implements ${baseName} {\n`);
         // Store parameters in fields
         const fields = fieldList.split(', ');
         const formattedFields = [];
@@ -45,7 +51,7 @@ class GenerateAst {
         writer.write('\n');
         writer.write(`      accept<T>(visitor: Visitor<T>) {\n`);
         writer.write(`          return visitor.visit${className}${baseName}(this as any);\n`);
-        writer.write(`      }`);
+        writer.write(`      }\n`);
         writer.write('\n');
         writer.write(`      constructor(${formattedFields.join(', ')}) {\n`);
         for (const field of fields) {
@@ -54,17 +60,29 @@ class GenerateAst {
         }
         writer.write('      }\n');
         writer.write('    }\n');
+        writer.write('\n');
     }
-    defineAst(outputDir, baseName, types) {
+    defineAst(outputDir, baseName, types, imports) {
         const path = `${outputDir}/${baseName}.ts`;
         const writer = (0, fs_1.createWriteStream)(path, { flags: 'a' });
-        writer.write("import { Token } from 'token/token';\n");
-        writer.write('\n');
-        this.defineVisitor(writer, baseName, types);
-        writer.write('\n');
+        if (imports) {
+            for (const { from, isDefault, what } of imports) {
+                let importName = `{${what}}`;
+                if (isDefault)
+                    importName = what;
+                writer.write(`import ${importName} from "${from}"\n`);
+            }
+        }
+        writer.write("\n");
         writer.write(`export abstract class ${baseName} {\n`);
-        writer.write('    abstract accept<T>(visitor: Visitor<T>): void;\n');
-        writer.write('\n');
+        writer.write(`  abstract accept<T>(visitor: Visitor<T>): T`);
+        writer.write("\n");
+        writer.write(`};`);
+        writer.write("\n");
+        writer.write("\n");
+        this.defineVisitor(writer, baseName, types);
+        writer.write("\n");
+        writer.write(`export namespace ${baseName} {\n`);
         // The AST classes
         for (const type of types) {
             const className = type.split(":")[0].trim();

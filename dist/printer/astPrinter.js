@@ -29,5 +29,8 @@ class AstPrinter {
     visitUnaryExpr(expr) {
         return this.parenthesize(expr.operator.lexeme, expr.right);
     }
+    visitVariableExpr(expr) {
+        return '';
+    }
 }
 exports.AstPrinter = AstPrinter;

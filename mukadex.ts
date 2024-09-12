@@ -1,9 +1,13 @@
-import {readFileSync} from 'node:fs';
-import {Scanner} from './scanner/scanner';
+import { readFileSync } from 'node:fs';
+
 import { Token } from 'token/token';
 import { TokenType } from 'token/types';
+
 import { Parser } from 'parser/parser';
+
 import { Interpreter, RuntimeException } from 'interpreter/interpreter';
+
+import { Scanner } from 'scanner/scanner';
 
 export class Mukadex {
     static hasError: boolean = false;
@@ -20,7 +24,6 @@ export class Mukadex {
             return;
         }
     }
-
 
     private static runFile(path: string): void {
         const bytes = readFileSync(path);

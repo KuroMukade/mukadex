@@ -5,6 +5,7 @@ export abstract class Expr {
 };
 
 export interface Visitor<T> {
+    visitAssignExpr(expr: Expr.Assign): T;
     visitBinaryExpr(expr: Expr.Binary): T;
     visitGroupingExpr(expr: Expr.Grouping): T;
     visitLiteralExpr(expr: Expr.Literal): T;
@@ -13,6 +14,20 @@ export interface Visitor<T> {
 }
 
 export namespace Expr {
+    export class Assign implements Expr {
+      readonly name: Token;
+      readonly value: Expr;
+
+      accept<T>(visitor: Visitor<T>) {
+          return visitor.visitAssignExpr(this as any);
+      }
+
+      constructor(name: Token, value: Expr) {
+        this.name = name;
+        this.value = value;
+      }
+    }
+
     export class Binary implements Expr {
       readonly left: Expr;
       readonly operator: Token;
@@ -42,13 +57,13 @@ export namespace Expr {
     }
 
     export class Literal implements Expr {
-      readonly value: Object | null;
+      readonly value: Object;
 
       accept<T>(visitor: Visitor<T>) {
           return visitor.visitLiteralExpr(this as any);
       }
 
-      constructor(value: Object | null) {
+      constructor(value: Object) {
         this.value = value;
       }
     }

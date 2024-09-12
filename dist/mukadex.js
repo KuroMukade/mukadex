@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Mukadex = void 0;
 const node_fs_1 = require("node:fs");
-const scanner_1 = require("./scanner/scanner");
 const types_1 = require("token/types");
 const parser_1 = require("parser/parser");
 const interpreter_1 = require("interpreter/interpreter");
+const scanner_1 = require("scanner/scanner");
 class Mukadex {
     static hasError = false;
     static hadRuntimeError = false;
@@ -33,10 +33,10 @@ class Mukadex {
         const scanner = new scanner_1.Scanner(source);
         const tokens = scanner.scanTokens();
         const parser = new parser_1.Parser(tokens);
-        const expression = parser.parse();
-        if (this.hasError || !expression)
+        const statements = parser.parse();
+        if (this.hasError)
             return;
-        this.interpreter.interpret(expression);
+        this.interpreter.interpret(statements);
     }
     static error(token, message) {
         if (token.type === types_1.TokenType.EOF) {
