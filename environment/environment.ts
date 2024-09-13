@@ -1,5 +1,5 @@
 import { RuntimeException } from "interpreter/interpreter";
-import { toNamespacedPath } from "path/posix";
+
 import { Token } from "token/token";
 
 export class Environment {
@@ -11,6 +11,26 @@ export class Environment {
      */
     private readonly values = new Map<string, Object | null>();
 
+    readonly enclosing: Environment | null;
+
+    /**
+     * The non-argument constructor is for global scope's environment
+     */
+    constructor(enclosing?: Environment);
+
+    /**
+     * Creates new local scope nested inside the given enclosing
+     */
+    constructor(enclosing: Environment);
+    
+    constructor(enclosing?: Environment) {
+        if (enclosing) {
+            this.enclosing = enclosing;
+            return;
+        }
+        this.enclosing = null;
+    }
+
     /**
      * Assignment is not allowed to create new variable
      */
@@ -18,6 +38,10 @@ export class Environment {
         if (this.values.has(name.lexeme)) {
             this.values.set(name.lexeme, value);
             return;
+        }
+
+        if (this.enclosing !== null) {
+            return this.enclosing.assign(name, value);
         }
 
         throw new RuntimeException(name, `Undefined variable ${name.lexeme}.`);
@@ -32,6 +56,21 @@ export class Environment {
             return this.values.get(name.lexeme);
         }
 
+        /**
+         * If the variable isn't found in this environment, try the enclosing one.
+         * That in turn does the same thing recursively,
+         * so this will walk through the entire scope chain.
+         * 
+         * If we reach an environment with no enclosing one
+         * and still don't find the variable,
+         * then it throws an error.
+         */
+        if (this.enclosing !== null) {
+            return this.enclosing.get(name);
+        }
+
         throw new RuntimeException(name, `Undefined variable ${name.lexeme}.`);
     }
 }
+
+const a = new Environment();
