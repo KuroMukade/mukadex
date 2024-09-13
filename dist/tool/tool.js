@@ -17,6 +17,7 @@ class GenerateAst {
             "Variable : Token name",
         ], [{ from: 'token/token', what: 'Token' }]);
         this.defineAst(outputDir, "Stmt", [
+            "Block : Stmt[] statements",
             "Expression : Expr expression",
             "Print : Expr expression",
             "Var : Token name, Expr initializer",

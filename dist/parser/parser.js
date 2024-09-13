@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Parser = void 0;
-const Expr_1 = require("codegen/Expr");
+const Expr_1 = require("Expr");
 const mukadex_1 = require("mukadex");
-const Stmt_1 = require("codegen/Stmt");
+const Stmt_1 = require("Stmt");
 const types_1 = require("token/types");
 /**
  * Precedence levels:
@@ -215,11 +215,42 @@ class Parser {
         return expr;
     }
     /**
+     * There are l-values and r-values
+     *
+     * The l-value "evaluates" to a storage location that you can assign it to
+     *
+     * var dog = 'bobik';    --  l value
+     * dog = 'rex';          --  r value
+     *
+     * In this example we don't know what the l-value is before we hit the "=".
+     *
+     * makeList().head.next = node;
+     *
+     * We can parse left hand side as an expression and turn it to assignment if needed
+     *
+     * If the left-hand side expression isn't a valid assignment target we'll fail with error:
+     *
+     * a + b = c;
+     *
+     */
+    assignment() {
+        const expr = this.equality();
+        if (!this.match(types_1.TokenType.EQUAL))
+            return expr;
+        const equals = this.previous();
+        const value = this.assignment();
+        if (expr instanceof Expr_1.Expr.Variable) {
+            const name = new Expr_1.Expr.Variable(expr.name).name;
+            return new Expr_1.Expr.Assign(name, value);
+        }
+        return this.error(equals, "Invalid assignment target.");
+    }
+    /**
      * Expands to the equality rule
      * @returns
      */
     expression() {
-        return this.equality();
+        return this.assignment();
     }
 }
 exports.Parser = Parser;

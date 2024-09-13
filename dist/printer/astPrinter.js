@@ -15,6 +15,8 @@ class AstPrinter {
     print(expr) {
         return expr.accept(this);
     }
+    visitAssignExpr(expr) {
+    }
     visitBinaryExpr(expr) {
         return this.parenthesize(expr.operator.lexeme, expr.left, expr.right);
     }

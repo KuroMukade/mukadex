@@ -15,6 +15,11 @@ class RuntimeException {
 exports.RuntimeException = RuntimeException;
 class Interpreter {
     environment = new environment_1.Environment();
+    visitAssignExpr(expr) {
+        const value = this.evaluate(expr.value);
+        this.environment.assign(expr.name, value);
+        return value;
+    }
     visitVarStmt(stmt) {
         let value = null;
         if (stmt.initializer !== null) {

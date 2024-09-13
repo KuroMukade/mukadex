@@ -1,4 +1,4 @@
-import { Expr, Visitor } from "codegen/Expr";
+import { Expr, Visitor } from "Expr";
 
 export class AstPrinter implements Visitor<string> {
     private parenthesize(name: string, ...exprs: Expr[]): string {
@@ -14,6 +14,10 @@ export class AstPrinter implements Visitor<string> {
 
     public print(expr: Expr) {
         return expr.accept<string>(this as any);
+    }
+
+    public visitAssignExpr(expr: Expr.Assign): string {
+        
     }
 
     public visitBinaryExpr(expr: Expr.Binary): string {

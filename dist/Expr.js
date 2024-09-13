@@ -6,6 +6,18 @@ class Expr {
 exports.Expr = Expr;
 ;
 (function (Expr) {
+    class Assign {
+        name;
+        value;
+        accept(visitor) {
+            return visitor.visitAssignExpr(this);
+        }
+        constructor(name, value) {
+            this.name = name;
+            this.value = value;
+        }
+    }
+    Expr.Assign = Assign;
     class Binary {
         left;
         operator;

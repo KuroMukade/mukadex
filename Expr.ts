@@ -1,4 +1,4 @@
-import {Token} from "token/token"
+import { Token } from "token/token"
 
 export abstract class Expr {
   abstract accept<T>(visitor: Visitor<T>): T

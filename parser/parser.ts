@@ -150,9 +150,22 @@ export class Parser {
         throw this.error(this.peek(), "Expected expression.");
     }
 
+    block(): Stmt[] {
+        const statements = [];
+
+        while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+            statements.push(this.declaration());
+        }
+
+        this.consume(TokenType.RIGHT_BRACE, "Expext '}' after block.");
+        return statements;
+    }
+
     statement(): Stmt {
         if (this.match(TokenType.PRINT)) return this.printStatement();
-
+        if (this.match(TokenType.LEFT_BRACE)) {
+            return new Stmt.Block(this.block());
+        }
         return this.expressionStatement();
     }
 

@@ -19,6 +19,25 @@ export class RuntimeException {
 export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void> {
     private environment = new Environment();
 
+    private executeBlock(statements: Stmt[], environment: Environment) {
+        const previous = this.environment;
+
+        try {
+            this.environment = environment;
+
+            for (const statement of statements) {
+                this.execute(statement);
+            }
+        } finally {
+            this.environment = previous;
+        }
+    }
+
+    visitBlockStmt(stmt: Stmt.Block): null {
+        this.executeBlock(stmt.statements, new Environment(this.environment));
+        return null;
+    }
+
     visitAssignExpr(expr: Expr.Assign): Object | null {
         const value = this.evaluate(expr.value);
         this.environment.assign(expr.name, value);
