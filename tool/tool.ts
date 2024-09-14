@@ -1,4 +1,4 @@
-import {createWriteStream, WriteStream} from "fs";
+import {createWriteStream} from "fs";
 
 interface Writer {
     write: (text: string) => void;
@@ -18,7 +18,7 @@ export class GenerateAst {
             "Literal : Object value",
             "Unary : Token operator, Expr right",
             "Variable : Token name",
-        ], [{from: 'token/token', what: 'Token'}]);
+        ], [{from: '../token/token', what: 'Token'}]);
 
         this.defineAst(outputDir, "Stmt", [
             "Block : Stmt[] statements",
@@ -26,8 +26,8 @@ export class GenerateAst {
             "Print : Expr expression",
             "Var : Token name, Expr initializer",
         ], [
-            {from: 'Expr', what: 'Expr'},
-            {from: 'token/token', what: 'Token'},
+            {from: '../Expr', what: 'Expr'},
+            {from: '../token/token', what: 'Token'},
         ]);
         }
 

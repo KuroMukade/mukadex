@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Mukadex = void 0;
 const node_fs_1 = require("node:fs");
-const types_1 = require("token/types");
-const parser_1 = require("parser/parser");
-const interpreter_1 = require("interpreter/interpreter");
-const scanner_1 = require("scanner/scanner");
+const types_1 = require("./token/types");
+const parser_1 = require("./parser/parser");
+const interpreter_1 = require("./interpreter/interpreter");
+const scanner_1 = require("./scanner/scanner");
 class Mukadex {
     static hasError = false;
     static hadRuntimeError = false;
@@ -24,10 +24,12 @@ class Mukadex {
         const bytes = (0, node_fs_1.readFileSync)(path);
         this.run(bytes.toString('utf-8'));
         if (this.hasError) {
+            console.log('HAS ERROR');
             return;
         }
         if (this.hadRuntimeError)
-            return;
+            console.log('HAS RUNTIME ERROR');
+        return;
     }
     static run(source) {
         const scanner = new scanner_1.Scanner(source);
@@ -55,4 +57,4 @@ class Mukadex {
     }
 }
 exports.Mukadex = Mukadex;
-Mukadex.main();
+Mukadex.main('dist/example.txt');

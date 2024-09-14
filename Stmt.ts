@@ -1,5 +1,5 @@
-import {Expr} from "Expr"
-import {Token} from "token/token"
+import {Expr} from "./Expr"
+import {Token} from "./token/token"
 
 export abstract class Stmt {
   abstract accept<T>(visitor: Visitor<T>): T

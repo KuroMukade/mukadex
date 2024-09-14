@@ -1,10 +1,10 @@
-import { Expr, Visitor as ExprVisitor } from "Expr";
-import { Stmt, Visitor as StmtVisitor } from "Stmt";
-import { Environment } from "environment/environment";
+import { Expr, Visitor as ExprVisitor } from "../Expr";
+import { Stmt, Visitor as StmtVisitor } from "../Stmt";
+import { Environment } from "../environment/environment";
 
-import { Mukadex } from "mukadex";
-import { Token } from "token/token";
-import { TokenType } from "token/types";
+import { Mukadex } from "../mukadex";
+import { Token } from "../token/token";
+import { TokenType } from "../token/types";
 
 export class RuntimeException {
     token: Token;

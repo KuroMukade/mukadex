@@ -1,6 +1,6 @@
-import { RuntimeException } from "interpreter/interpreter";
+import { RuntimeException } from "../interpreter/interpreter";
 
-import { Token } from "token/token";
+import { Token } from "../token/token";
 
 export class Environment {
     /**

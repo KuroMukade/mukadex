@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Interpreter = exports.RuntimeException = void 0;
-const environment_1 = require("environment/environment");
-const mukadex_1 = require("mukadex");
-const types_1 = require("token/types");
+const environment_1 = require("../environment/environment");
+const mukadex_1 = require("../mukadex");
+const types_1 = require("../token/types");
 class RuntimeException {
     token;
     message;
@@ -15,6 +15,22 @@ class RuntimeException {
 exports.RuntimeException = RuntimeException;
 class Interpreter {
     environment = new environment_1.Environment();
+    executeBlock(statements, environment) {
+        const previous = this.environment;
+        try {
+            this.environment = environment;
+            for (const statement of statements) {
+                this.execute(statement);
+            }
+        }
+        finally {
+            this.environment = previous;
+        }
+    }
+    visitBlockStmt(stmt) {
+        this.executeBlock(stmt.statements, new environment_1.Environment(this.environment));
+        return null;
+    }
     visitAssignExpr(expr) {
         const value = this.evaluate(expr.value);
         this.environment.assign(expr.name, value);

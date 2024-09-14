@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Parser = void 0;
-const Expr_1 = require("Expr");
-const mukadex_1 = require("mukadex");
-const Stmt_1 = require("Stmt");
-const types_1 = require("token/types");
+const Expr_1 = require("../Expr");
+const mukadex_1 = require("../mukadex");
+const Stmt_1 = require("../Stmt");
+const types_1 = require("../token/types");
 /**
  * Precedence levels:
  *
@@ -132,9 +132,20 @@ class Parser {
         }
         throw this.error(this.peek(), "Expected expression.");
     }
+    block() {
+        const statements = [];
+        while (!this.check(types_1.TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+            statements.push(this.declaration());
+        }
+        this.consume(types_1.TokenType.RIGHT_BRACE, "Expext '}' after block.");
+        return statements;
+    }
     statement() {
         if (this.match(types_1.TokenType.PRINT))
             return this.printStatement();
+        if (this.match(types_1.TokenType.LEFT_BRACE)) {
+            return new Stmt_1.Stmt.Block(this.block());
+        }
         return this.expressionStatement();
     }
     printStatement() {

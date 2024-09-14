@@ -1,8 +1,8 @@
-import { Expr } from "Expr";
-import { Mukadex } from "mukadex";
-import { Stmt } from "Stmt";
-import { Token } from "token/token";
-import { TokenType } from "token/types";
+import { Expr } from "../Expr";
+import { Mukadex } from "../mukadex";
+import { Stmt } from "../Stmt";
+import { Token } from "../token/token";
+import { TokenType } from "../token/types";
 
 /**
  * Precedence levels:

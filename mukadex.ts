@@ -1,13 +1,13 @@
 import { readFileSync } from 'node:fs';
 
-import { Token } from 'token/token';
-import { TokenType } from 'token/types';
+import { Token } from './token/token';
+import { TokenType } from './token/types';
 
-import { Parser } from 'parser/parser';
+import { Parser } from './parser/parser';
 
-import { Interpreter, RuntimeException } from 'interpreter/interpreter';
+import { Interpreter, RuntimeException } from './interpreter/interpreter';
 
-import { Scanner } from 'scanner/scanner';
+import { Scanner } from './scanner/scanner';
 
 export class Mukadex {
     static hasError: boolean = false;
@@ -15,12 +15,14 @@ export class Mukadex {
     private static interpreter = new Interpreter();
 
     public static main(...args: string[]): void {
+        console.log('IOADBNBAEIO')
         if (args.length > 1) {
             console.log("Usage: jmukadex [script]");
             return;
         }
         if (args.length === 1) {
             this.runFile(args[0]);
+            console.log('run file')
             return;
         }
     }
