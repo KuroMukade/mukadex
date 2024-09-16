@@ -1,2 +1,3 @@
-var lox = 3;
+var lox = "dodik";
+var lox = "dodik";
 print lox;

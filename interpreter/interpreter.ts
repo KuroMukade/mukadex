@@ -220,6 +220,7 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
     interpret(statements: Stmt[]) {
         try {
             for (const statement of statements) {
+                console.log({statement});
                 this.execute(statement);
             }
         } catch (error) {

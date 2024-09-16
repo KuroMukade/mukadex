@@ -54,7 +54,7 @@ export namespace Stmt {
       readonly initializer: Expr;
 
       accept<T>(visitor: Visitor<T>) {
-          return visitor.visitVarStmt(this as any);
+          return visitor.visitVarStmt(this);
       }
 
       constructor(name: Token, initializer: Expr) {

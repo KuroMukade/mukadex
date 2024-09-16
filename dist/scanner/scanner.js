@@ -10,6 +10,7 @@ const getKeywords = () => {
     keywords.set("class", types_1.TokenType.CLASS);
     keywords.set("else", types_1.TokenType.ELSE);
     keywords.set("false", types_1.TokenType.FALSE);
+    keywords.set("true", types_1.TokenType.TRUE);
     keywords.set("for", types_1.TokenType.FOR);
     keywords.set("function", types_1.TokenType.FUNCTION);
     keywords.set("if", types_1.TokenType.IF);
@@ -19,7 +20,6 @@ const getKeywords = () => {
     keywords.set("return", types_1.TokenType.RETURN);
     keywords.set("super", types_1.TokenType.SUPER);
     keywords.set("this", types_1.TokenType.THIS);
-    keywords.set("true", types_1.TokenType.TRUE);
     keywords.set("var", types_1.TokenType.VAR);
     keywords.set("while", types_1.TokenType.WHILE);
     return keywords;
@@ -34,13 +34,8 @@ class Scanner {
     constructor(source) {
         this.source = source;
     }
-    isAtEnd() {
-        return this.current >= this.source.length;
-    }
     /**
      * Grabs the text of the current lexeme and creates a new token for it
-     * @param {TokenType} token token
-     * @param literal
      */
     addToken(type, literal = null) {
         const text = this.source.substring(this.start, this.current);
@@ -86,10 +81,9 @@ class Scanner {
     }
     /**
      * Lookahead that looks to current unconsumed character
-     * @returns string
      */
     peek() {
-        if (!this.isAtEnd())
+        if (this.isAtEnd())
             return '\0';
         return this.source.charAt(this.current);
     }
@@ -127,6 +121,9 @@ class Scanner {
         return (character >= 'a' && character <= 'z') ||
             (character >= 'A' && character <= 'Z') ||
             character == '_';
+    }
+    isAtEnd() {
+        return this.current >= this.source.length;
     }
     identifier() {
         while (this.isAlphaNumeric(this.peek())) {
@@ -208,7 +205,6 @@ class Scanner {
                 break;
             }
             case '/': {
-                /** */
                 if (this.match('*') && this.match('*')) {
                     while (this.peek() !== '*' && this.peekNext() !== '/') {
                         this.advance();

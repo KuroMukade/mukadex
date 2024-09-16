@@ -61,9 +61,10 @@ export class Parser {
     private match(...types: TokenType[]): boolean {
         for (const type of types) {
             // check if current token has any of the given types
-            if (!this.check(type)) return false;
-            this.advance();
-            return true;
+            if (this.check(type)) {
+                this.advance();
+                return true;
+            };
         }
 
         return false;
@@ -177,7 +178,7 @@ export class Parser {
 
     expressionStatement(): Stmt {
         const expr = this.expression();
-        this.consume(TokenType.SEMICOLON, "Expect ':' after expression.");
+        this.consume(TokenType.SEMICOLON, "Expect ';' after expression.");
         return new Stmt.Expression(expr);
     }
 
@@ -204,6 +205,7 @@ export class Parser {
 
     private varDeclaration(): Stmt {
         const name: Token = this.consume(TokenType.IDENTIFIER, "Expect variable name.");
+
         let initializer: Expr | null = null; 
         if (this.match(TokenType.EQUAL)) {
             initializer = this.expression();
@@ -219,6 +221,7 @@ export class Parser {
             const right: Expr = this.unary();
             return new Expr.Unary(operator, right);
         }
+
         return this.primary();
     }
 

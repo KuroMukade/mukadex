@@ -8,6 +8,7 @@ const getKeywords = () => {
     keywords.set("class", TokenType.CLASS);
     keywords.set("else", TokenType.ELSE);
     keywords.set("false", TokenType.FALSE);
+    keywords.set("true", TokenType.TRUE);
     keywords.set("for", TokenType.FOR);
     keywords.set("function", TokenType.FUNCTION);
     keywords.set("if", TokenType.IF);
@@ -17,7 +18,6 @@ const getKeywords = () => {
     keywords.set("return", TokenType.RETURN);
     keywords.set("super", TokenType.SUPER);
     keywords.set("this", TokenType.THIS);
-    keywords.set("true", TokenType.TRUE);
     keywords.set("var", TokenType.VAR);
     keywords.set("while", TokenType.WHILE);
     return keywords;
@@ -40,14 +40,8 @@ export class Scanner implements IScanner {
         this.source = source;
     }
 
-    private isAtEnd(): boolean {
-        return this.current >= this.source.length;
-    }
-
     /**
      * Grabs the text of the current lexeme and creates a new token for it
-     * @param {TokenType} token token 
-     * @param literal
      */
     private addToken(type: TokenType, literal: null | string = null): void {
         const text = this.source.substring(this.start, this.current);
@@ -83,6 +77,7 @@ export class Scanner implements IScanner {
             }
             this.advance();
         }
+
         if (this.isAtEnd()) {
             Mukadex.error(this.tokens?.[this.current], 'Unterminated string.');
             return;
@@ -91,15 +86,15 @@ export class Scanner implements IScanner {
         this.advance();
         // Trim the surrounding quotes
         const value = this.source.substring(this.start + 1, this.current - 1);
+
         this.addToken(TokenType.STRING, value);
     }
 
     /**
      * Lookahead that looks to current unconsumed character
-     * @returns string
      */
     private peek(): string {
-        if (!this.isAtEnd()) return '\0';
+        if (this.isAtEnd()) return '\0';
         return this.source.charAt(this.current);
     }
 
@@ -143,6 +138,10 @@ export class Scanner implements IScanner {
         return (character >= 'a' && character <= 'z') ||
         (character >= 'A' && character <= 'Z') ||
         character == '_';
+    }
+
+    private isAtEnd(): boolean {
+        return this.current >= this.source.length;
     }
 
     private identifier(): void {
@@ -206,7 +205,6 @@ export class Scanner implements IScanner {
                 break;
             }
             case '/': {
-                /** */
                 if (this.match('*') && this.match('*')) {
                     while (this.peek() !== '*' && this.peekNext() !== '/') {
                         this.advance();

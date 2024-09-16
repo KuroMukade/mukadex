@@ -54,10 +54,11 @@ class Parser {
     match(...types) {
         for (const type of types) {
             // check if current token has any of the given types
-            if (!this.check(type))
-                return false;
-            this.advance();
-            return true;
+            if (this.check(type)) {
+                this.advance();
+                return true;
+            }
+            ;
         }
         return false;
     }
@@ -155,7 +156,7 @@ class Parser {
     }
     expressionStatement() {
         const expr = this.expression();
-        this.consume(types_1.TokenType.SEMICOLON, "Expect ':' after expression.");
+        this.consume(types_1.TokenType.SEMICOLON, "Expect ';' after expression.");
         return new Stmt_1.Stmt.Expression(expr);
     }
     parse() {

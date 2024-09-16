@@ -179,6 +179,7 @@ class Interpreter {
     interpret(statements) {
         try {
             for (const statement of statements) {
+                console.log({ statement });
                 this.execute(statement);
             }
         }

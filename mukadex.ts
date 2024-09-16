@@ -38,8 +38,6 @@ export class Mukadex {
         const scanner = new Scanner(source);
         const tokens = scanner.scanTokens();
 
-        console.log({tokens});
-
         const parser = new Parser(tokens);
         const statements = parser.parse();
 
@@ -50,10 +48,10 @@ export class Mukadex {
 
 
     static error(token: Token, message: string): void {
-        if (token.type === TokenType.EOF) {
-            this.report(token.line, ' at end', message);
+        if (token?.type === TokenType.EOF) {
+            this.report(token?.line, ' at end', message);
         } else {
-            this.report(token.line, ` at "${token.lexeme}"`, message);
+            this.report(token?.line, ` at "${token?.lexeme}"`, message);
         }
     }
 
