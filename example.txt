@@ -1,3 +1,5 @@
-var lox = "dodik";
-var lox = "dodik";
+{
+    var lox = "hello!";
+}
+
 print lox;

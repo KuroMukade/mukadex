@@ -44,7 +44,7 @@ export class Environment {
             return this.enclosing.assign(name, value);
         }
 
-        throw new RuntimeException(name, `Undefined variable ${name.lexeme}.`);
+        throw new RuntimeException(name, `Undefined variable "${name.lexeme}".`);
     }
 
     define(name: string, value: Object | null): void {

@@ -56,7 +56,7 @@ export class Mukadex {
     }
 
     static runtimeError(error: RuntimeException) {
-        console.error(`{error.getMessage()}\n[line ${error.token.line}]`);
+        console.error(`${error.message}\n[line ${error.token.line}]`);
     }
 
     private static report(line: number, where: string, message: string): void {

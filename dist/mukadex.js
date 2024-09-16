@@ -47,7 +47,7 @@ class Mukadex {
         }
     }
     static runtimeError(error) {
-        console.error(`{error.getMessage()}\n[line ${error.token.line}]`);
+        console.error(`${error.message}\n[line ${error.token.line}]`);
     }
     static report(line, where, message) {
         console.error("[line " + line + "] Error" + where + ": " + message);
