@@ -15,14 +15,12 @@ export class Mukadex {
     private static interpreter = new Interpreter();
 
     public static main(...args: string[]): void {
-        console.log('IOADBNBAEIO')
         if (args.length > 1) {
             console.log("Usage: jmukadex [script]");
             return;
         }
         if (args.length === 1) {
             this.runFile(args[0]);
-            console.log('run file')
             return;
         }
     }
@@ -39,6 +37,8 @@ export class Mukadex {
     private static run(source: string): void {
         const scanner = new Scanner(source);
         const tokens = scanner.scanTokens();
+
+        console.log({tokens});
 
         const parser = new Parser(tokens);
         const statements = parser.parse();
@@ -67,6 +67,6 @@ export class Mukadex {
     }
 }
 
-Mukadex.main();
+Mukadex.main('example.txt');
 
 

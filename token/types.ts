@@ -27,6 +27,8 @@ export enum TokenType {
     STRING = "STRING",
     NUMBER = "NUMBER",
 
+    FUNCTION = "FUNCTION",
+
     // Keywords.
     AND = "AND",
     CLASS = "CLASS",

@@ -6,22 +6,22 @@ const token_1 = require("../token/token");
 const types_1 = require("../token/types");
 const getKeywords = () => {
     const keywords = new Map();
-    keywords.set("and", 'AND');
-    keywords.set("class", 'CLASS');
-    keywords.set("else", 'ELSE');
-    keywords.set("false", 'FALSE');
-    keywords.set("for", 'FOR');
-    keywords.set("function", 'FUNCTION');
-    keywords.set("if", 'IF');
-    keywords.set("null", 'NULL');
-    keywords.set("or", 'OR');
-    keywords.set("print", 'PRINT');
-    keywords.set("return", 'RETURN');
-    keywords.set("super", 'SUPER');
-    keywords.set("this", 'THIS');
-    keywords.set("true", 'TRUE');
-    keywords.set("var", 'VAR');
-    keywords.set("while", 'WHILE');
+    keywords.set("and", types_1.TokenType.AND);
+    keywords.set("class", types_1.TokenType.CLASS);
+    keywords.set("else", types_1.TokenType.ELSE);
+    keywords.set("false", types_1.TokenType.FALSE);
+    keywords.set("for", types_1.TokenType.FOR);
+    keywords.set("function", types_1.TokenType.FUNCTION);
+    keywords.set("if", types_1.TokenType.IF);
+    keywords.set("nil", types_1.TokenType.NIL);
+    keywords.set("or", types_1.TokenType.OR);
+    keywords.set("print", types_1.TokenType.PRINT);
+    keywords.set("return", types_1.TokenType.RETURN);
+    keywords.set("super", types_1.TokenType.SUPER);
+    keywords.set("this", types_1.TokenType.THIS);
+    keywords.set("true", types_1.TokenType.TRUE);
+    keywords.set("var", types_1.TokenType.VAR);
+    keywords.set("while", types_1.TokenType.WHILE);
     return keywords;
 };
 class Scanner {
@@ -42,7 +42,7 @@ class Scanner {
      * @param {TokenType} token token
      * @param literal
      */
-    addToken(type, literal) {
+    addToken(type, literal = null) {
         const text = this.source.substring(this.start, this.current);
         this.tokens.push(new token_1.Token(type, text, literal, this.line));
     }
@@ -120,6 +120,9 @@ class Scanner {
     isAlphaNumeric(character) {
         return this.isAlpha(character) || this.isDigit(character);
     }
+    /**
+     * Represents character is part of identifier
+     */
     isAlpha(character) {
         return (character >= 'a' && character <= 'z') ||
             (character >= 'A' && character <= 'Z') ||
@@ -131,10 +134,10 @@ class Scanner {
         }
         const text = this.source.substring(this.start, this.current);
         let type = Scanner.keywords.get(text);
-        if (type === null) {
+        if (!type) {
             type = types_1.TokenType.IDENTIFIER;
         }
-        this.addToken(type);
+        this.addToken(type, null);
     }
     /**
      * Consumes the next character and picks a token type for it
@@ -238,7 +241,7 @@ class Scanner {
                     this.identifier();
                     break;
                 }
-                mukadex_1.Mukadex.error(this.tokens?.[this.current], 'Unexpected character at line (?)');
+                mukadex_1.Mukadex.error(this.tokens?.[this.current], `Unexpected character at line ${this.line}.`);
                 break;
             }
         }

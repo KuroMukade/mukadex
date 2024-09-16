@@ -24,16 +24,15 @@ class Mukadex {
         const bytes = (0, node_fs_1.readFileSync)(path);
         this.run(bytes.toString('utf-8'));
         if (this.hasError) {
-            console.log('HAS ERROR');
             return;
         }
         if (this.hadRuntimeError)
-            console.log('HAS RUNTIME ERROR');
-        return;
+            return;
     }
     static run(source) {
         const scanner = new scanner_1.Scanner(source);
         const tokens = scanner.scanTokens();
+        console.log({ tokens });
         const parser = new parser_1.Parser(tokens);
         const statements = parser.parse();
         if (this.hasError)
@@ -57,4 +56,4 @@ class Mukadex {
     }
 }
 exports.Mukadex = Mukadex;
-Mukadex.main('dist/example.txt');
+Mukadex.main('example.txt');

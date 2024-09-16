@@ -1,0 +1,2 @@
+var lox = 3;
+print lox;

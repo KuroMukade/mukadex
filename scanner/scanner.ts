@@ -3,23 +3,23 @@ import { Token } from "../token/token";
 import { TokenType } from "../token/types";
 
 const getKeywords = () => {
-    const keywords = new Map();
-    keywords.set("and", 'AND');
-    keywords.set("class", 'CLASS');
-    keywords.set("else", 'ELSE');
-    keywords.set("false", 'FALSE');
-    keywords.set("for", 'FOR');
-    keywords.set("function", 'FUNCTION');
-    keywords.set("if", 'IF');
-    keywords.set("null", 'NULL');
-    keywords.set("or", 'OR');
-    keywords.set("print", 'PRINT');
-    keywords.set("return", 'RETURN');
-    keywords.set("super", 'SUPER');
-    keywords.set("this", 'THIS');
-    keywords.set("true", 'TRUE');
-    keywords.set("var", 'VAR');
-    keywords.set("while", 'WHILE');
+    const keywords = new Map<string, TokenType>();
+    keywords.set("and", TokenType.AND);
+    keywords.set("class", TokenType.CLASS);
+    keywords.set("else", TokenType.ELSE);
+    keywords.set("false", TokenType.FALSE);
+    keywords.set("for", TokenType.FOR);
+    keywords.set("function", TokenType.FUNCTION);
+    keywords.set("if", TokenType.IF);
+    keywords.set("nil", TokenType.NIL);
+    keywords.set("or", TokenType.OR);
+    keywords.set("print", TokenType.PRINT);
+    keywords.set("return", TokenType.RETURN);
+    keywords.set("super", TokenType.SUPER);
+    keywords.set("this", TokenType.THIS);
+    keywords.set("true", TokenType.TRUE);
+    keywords.set("var", TokenType.VAR);
+    keywords.set("while", TokenType.WHILE);
     return keywords;
 }
 
@@ -49,7 +49,7 @@ export class Scanner implements IScanner {
      * @param {TokenType} token token 
      * @param literal
      */
-    private addToken(type: TokenType, literal?: any): void {
+    private addToken(type: TokenType, literal: null | string = null): void {
         const text = this.source.substring(this.start, this.current);
         this.tokens.push(new Token(type, text, literal, this.line));
     }
@@ -136,6 +136,9 @@ export class Scanner implements IScanner {
         return this.isAlpha(character) || this.isDigit(character);
     }
 
+    /**
+     * Represents character is part of identifier
+     */
     private isAlpha(character: string): boolean {
         return (character >= 'a' && character <= 'z') ||
         (character >= 'A' && character <= 'Z') ||
@@ -148,10 +151,10 @@ export class Scanner implements IScanner {
         }
         const text = this.source.substring(this.start, this.current);
         let type = Scanner.keywords.get(text);
-        if (type === null) {
+        if (!type) {
             type = TokenType.IDENTIFIER;
         }
-        this.addToken(type);
+        this.addToken(type, null);
     }
 
     /**
@@ -234,7 +237,7 @@ export class Scanner implements IScanner {
                     break;
                 }
 
-                Mukadex.error(this.tokens?.[this.current], 'Unexpected character at line (?)');
+                Mukadex.error(this.tokens?.[this.current], `Unexpected character at line ${this.line}.`);
                 break;
             }
         }

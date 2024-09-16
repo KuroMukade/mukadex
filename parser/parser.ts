@@ -151,10 +151,10 @@ export class Parser {
     }
 
     block(): Stmt[] {
-        const statements = [];
+        const statements: Stmt[] = [];
 
         while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
-            statements.push(this.declaration());
+            statements.push(this.declaration() as Stmt);
         }
 
         this.consume(TokenType.RIGHT_BRACE, "Expext '}' after block.");
@@ -184,7 +184,7 @@ export class Parser {
     parse(): Stmt[] {
         const statements: Stmt[] = [];
         while (!this.isAtEnd()) {
-            statements.push(this.declaration());
+            statements.push(this.declaration() as Stmt);
         }
 
         return statements;
@@ -210,7 +210,7 @@ export class Parser {
         }
 
         this.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
-        return new Stmt.Var(name, initializer);
+        return new Stmt.Var(name, initializer as Expr);
     }
 
     private unary(): Expr {
