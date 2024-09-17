@@ -1,4 +1,4 @@
-import { Token } from "./token/token"
+import {Token} from "./token/token"
 
 export abstract class Expr {
   abstract accept<T>(visitor: Visitor<T>): T
@@ -19,7 +19,7 @@ export namespace Expr {
       readonly value: Expr;
 
       accept<T>(visitor: Visitor<T>) {
-          return visitor.visitAssignExpr(this as any);
+          return visitor.visitAssignExpr(this);
       }
 
       constructor(name: Token, value: Expr) {
@@ -34,7 +34,7 @@ export namespace Expr {
       readonly right: Expr;
 
       accept<T>(visitor: Visitor<T>) {
-          return visitor.visitBinaryExpr(this as any);
+          return visitor.visitBinaryExpr(this);
       }
 
       constructor(left: Expr, operator: Token, right: Expr) {
@@ -48,7 +48,7 @@ export namespace Expr {
       readonly expression: Expr;
 
       accept<T>(visitor: Visitor<T>) {
-          return visitor.visitGroupingExpr(this as any);
+          return visitor.visitGroupingExpr(this);
       }
 
       constructor(expression: Expr) {
@@ -73,7 +73,7 @@ export namespace Expr {
       readonly right: Expr;
 
       accept<T>(visitor: Visitor<T>) {
-          return visitor.visitUnaryExpr(this as any);
+          return visitor.visitUnaryExpr(this);
       }
 
       constructor(operator: Token, right: Expr) {
@@ -86,7 +86,7 @@ export namespace Expr {
       readonly name: Token;
 
       accept<T>(visitor: Visitor<T>) {
-          return visitor.visitVariableExpr(this as any);
+          return visitor.visitVariableExpr(this);
       }
 
       constructor(name: Token) {

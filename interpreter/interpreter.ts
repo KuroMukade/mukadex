@@ -33,6 +33,19 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
         }
     }
 
+    visitIfStmt(stmt: Stmt.If): null {
+        if (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.thenBranch);
+            return null;
+        }
+
+        if (stmt.elseBranch) {
+            this.execute(stmt.elseBranch);
+        }
+
+        return null;
+    }
+
     visitBlockStmt(stmt: Stmt.Block): null {
         this.executeBlock(stmt.statements, new Environment(this.environment));
         return null;

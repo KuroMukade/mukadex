@@ -8,6 +8,7 @@ export abstract class Stmt {
 export interface Visitor<T> {
     visitBlockStmt(stmt: Stmt.Block): T;
     visitExpressionStmt(stmt: Stmt.Expression): T;
+    visitIfStmt(stmt: Stmt.If): T;
     visitPrintStmt(stmt: Stmt.Print): T;
     visitVarStmt(stmt: Stmt.Var): T;
 }
@@ -17,7 +18,7 @@ export namespace Stmt {
       readonly statements: Stmt[];
 
       accept<T>(visitor: Visitor<T>) {
-          return visitor.visitBlockStmt(this as any);
+          return visitor.visitBlockStmt(this);
       }
 
       constructor(statements: Stmt[]) {
@@ -29,7 +30,7 @@ export namespace Stmt {
       readonly expression: Expr;
 
       accept<T>(visitor: Visitor<T>) {
-          return visitor.visitExpressionStmt(this as any);
+          return visitor.visitExpressionStmt(this);
       }
 
       constructor(expression: Expr) {
@@ -37,11 +38,27 @@ export namespace Stmt {
       }
     }
 
+    export class If implements Stmt {
+      readonly condition: Expr;
+      readonly thenBranch: Stmt;
+      readonly elseBranch: Stmt | null;
+
+      accept<T>(visitor: Visitor<T>) {
+          return visitor.visitIfStmt(this);
+      }
+
+      constructor(condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null = null) {
+        this.condition = condition;
+        this.thenBranch = thenBranch;
+        this.elseBranch = elseBranch;
+      }
+    }
+
     export class Print implements Stmt {
       readonly expression: Expr;
 
       accept<T>(visitor: Visitor<T>) {
-          return visitor.visitPrintStmt(this as any);
+          return visitor.visitPrintStmt(this);
       }
 
       constructor(expression: Expr) {

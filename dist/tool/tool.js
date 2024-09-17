@@ -15,22 +15,22 @@ class GenerateAst {
             "Literal : Object value",
             "Unary : Token operator, Expr right",
             "Variable : Token name",
-        ], [{ from: '../token/token', what: 'Token' }]);
+        ], [{ from: './token/token', what: 'Token' }]);
         this.defineAst(outputDir, "Stmt", [
             "Block : Stmt[] statements",
             "Expression : Expr expression",
+            "If : Expr condition, Stmt thenBranch, Stmt elseBranch",
             "Print : Expr expression",
             "Var : Token name, Expr initializer",
         ], [
-            { from: '../Expr', what: 'Expr' },
-            { from: '../token/token', what: 'Token' },
+            { from: './Expr', what: 'Expr' },
+            { from: './token/token', what: 'Token' },
         ]);
     }
     defineVisitor(writer, baseName, types) {
         writer.write("export interface Visitor<T> {\n");
         for (const type of types) {
             const typeName = type.split(':')[0].trim();
-            console.log(type);
             writer.write(`    visit${typeName}${baseName}(${baseName.toLowerCase()}: ${baseName}.${typeName}): T;\n`);
         }
         writer.write("}\n");
@@ -51,7 +51,7 @@ class GenerateAst {
         }
         writer.write('\n');
         writer.write(`      accept<T>(visitor: Visitor<T>) {\n`);
-        writer.write(`          return visitor.visit${className}${baseName}(this as any);\n`);
+        writer.write(`          return visitor.visit${className}${baseName}(this);\n`);
         writer.write(`      }\n`);
         writer.write('\n');
         writer.write(`      constructor(${formattedFields.join(', ')}) {\n`);
@@ -65,7 +65,8 @@ class GenerateAst {
     }
     defineAst(outputDir, baseName, types, imports) {
         const path = `${outputDir}/${baseName}.ts`;
-        const writer = (0, fs_1.createWriteStream)(path, { flags: 'a' });
+        // 'w' flag stands for overriding
+        const writer = (0, fs_1.createWriteStream)(path, { flags: 'w' });
         if (imports) {
             for (const { from, isDefault, what } of imports) {
                 let importName = `{${what}}`;
