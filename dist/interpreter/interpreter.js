@@ -54,7 +54,6 @@ class Interpreter {
         return null;
     }
     visitWhileStmt(stmt) {
-        console.log({ condition: stmt.condition });
         while (this.isTruthy(this.evaluate(stmt.condition))) {
             this.execute(stmt.body);
         }

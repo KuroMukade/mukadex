@@ -145,6 +145,8 @@ class Parser {
         return statements;
     }
     statement() {
+        if (this.match(types_1.TokenType.FOR))
+            return this.forStatement();
         if (this.match(types_1.TokenType.IF))
             return this.ifStatement();
         if (this.match(types_1.TokenType.PRINT))
@@ -155,6 +157,90 @@ class Parser {
             return new Stmt_1.Stmt.Block(this.block());
         }
         return this.expressionStatement();
+    }
+    /**
+     * forStmt → "for" "(" ( varDecl | exprStmt | ";" )
+     *                      expression? ";"
+     *                      expression? ")" statement ;
+     *
+     *
+     * 1st clause is the initializer. It's executed only once before anything else.
+     * It's var declaration or expression.
+     * If it's declaration - then the var scoped for the rest of for loop
+     *
+     * 2nd clause is the condition. It's evaluated once at the beginning of each iteration,
+     * including the first. If the result = true, then we exit the loop.
+     *
+     * 3rd clause is the increment
+     * The 3-rd part executes after the body in each iteration of the loop
+     *
+     */
+    forStatement() {
+        this.consume(types_1.TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+        // 1
+        let initializer;
+        if (this.match(types_1.TokenType.SEMICOLON)) {
+            initializer = null;
+        }
+        else if (this.match(types_1.TokenType.VAR)) {
+            initializer = this.varDeclaration();
+        }
+        else {
+            initializer = this.expressionStatement();
+        }
+        // 2
+        let condition = null;
+        if (!this.check(types_1.TokenType.SEMICOLON)) {
+            condition = this.expression();
+        }
+        this.consume(types_1.TokenType.SEMICOLON, "Expect ';' after loop condition.");
+        // 3
+        let increment = null;
+        if (!this.check(types_1.TokenType.RIGHT_PAREN)) {
+            increment = this.expression();
+        }
+        this.consume(types_1.TokenType.RIGHT_PAREN, "Expect ')' at the end of for loop.");
+        let body = this.statement();
+        // desugaring
+        if (increment !== null) {
+            /**
+            * Convert 3rd part of loop with incrementing to original body:
+            *
+            * for (var i = 0; i < 3; i++) { ...body }
+            *
+            * converts into:
+            *
+            * while (i < 3) {
+            *   ...body;
+            *   i++;
+            * }
+            */
+            body = new Stmt_1.Stmt.Block([
+                body,
+                new Stmt_1.Stmt.Expression(increment)
+            ]);
+        }
+        // for (; ...) -> while (true)
+        if (condition === null) {
+            condition = new Expr_1.Expr.Literal(true);
+        }
+        body = new Stmt_1.Stmt.While(condition, body);
+        /**
+         * Inserts initializer before while loop:
+         *
+         * for (var i = 0; i < 3; i++) {}
+         *
+         * ->
+         *
+         * var i = 0;
+         *
+         * while (i < 3) { i++; }
+         *
+         */
+        if (initializer !== null) {
+            body = new Stmt_1.Stmt.Block([initializer, body]);
+        }
+        return body;
     }
     whileStatement() {
         this.consume(types_1.TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
