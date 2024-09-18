@@ -167,10 +167,21 @@ export class Parser {
     statement(): Stmt {
         if (this.match(TokenType.IF)) return this.ifStatement();
         if (this.match(TokenType.PRINT)) return this.printStatement();
+        if (this.match(TokenType.WHILE)) return this.whileStatement();
         if (this.match(TokenType.LEFT_BRACE)) {
             return new Stmt.Block(this.block());
         }
         return this.expressionStatement();
+    }
+
+    whileStatement(): Stmt {
+        this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+        const condition = this.expression();
+        this.consume(TokenType.RIGHT_PAREN, "Expect ')' after while condition.");
+
+        const body = this.statement();
+
+        return new Stmt.While(condition, body);
     }
 
     ifStatement(): Stmt {

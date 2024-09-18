@@ -63,6 +63,14 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
         return null;
     }
 
+    visitWhileStmt(stmt: Stmt.While): null {
+        while (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.body);
+        }
+
+        return null;
+    }
+
     visitAssignExpr(expr: Expr.Assign): Object | null {
         const value = this.evaluate(expr.value);
         this.environment.assign(expr.name, value);

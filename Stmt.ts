@@ -11,6 +11,7 @@ export interface Visitor<T> {
     visitIfStmt(stmt: Stmt.If): T;
     visitPrintStmt(stmt: Stmt.Print): T;
     visitVarStmt(stmt: Stmt.Var): T;
+    visitWhileStmt(stmt: Stmt.While): T;
 }
 
 export namespace Stmt {
@@ -41,13 +42,13 @@ export namespace Stmt {
     export class If implements Stmt {
       readonly condition: Expr;
       readonly thenBranch: Stmt;
-      readonly elseBranch: Stmt | null;
+      readonly elseBranch: Stmt;
 
       accept<T>(visitor: Visitor<T>) {
           return visitor.visitIfStmt(this);
       }
 
-      constructor(condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null = null) {
+      constructor(condition: Expr, thenBranch: Stmt, elseBranch: Stmt) {
         this.condition = condition;
         this.thenBranch = thenBranch;
         this.elseBranch = elseBranch;
@@ -77,6 +78,20 @@ export namespace Stmt {
       constructor(name: Token, initializer: Expr) {
         this.name = name;
         this.initializer = initializer;
+      }
+    }
+
+    export class While implements Stmt {
+      readonly condition: Expr;
+      readonly body: Stmt;
+
+      accept<T>(visitor: Visitor<T>) {
+          return visitor.visitWhileStmt(this);
+      }
+
+      constructor(condition: Expr, body: Stmt) {
+        this.condition = condition;
+        this.body = body;
       }
     }
 

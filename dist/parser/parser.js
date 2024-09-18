@@ -149,10 +149,19 @@ class Parser {
             return this.ifStatement();
         if (this.match(types_1.TokenType.PRINT))
             return this.printStatement();
+        if (this.match(types_1.TokenType.WHILE))
+            return this.whileStatement();
         if (this.match(types_1.TokenType.LEFT_BRACE)) {
             return new Stmt_1.Stmt.Block(this.block());
         }
         return this.expressionStatement();
+    }
+    whileStatement() {
+        this.consume(types_1.TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+        const condition = this.expression();
+        this.consume(types_1.TokenType.RIGHT_PAREN, "Expect ')' after while condition.");
+        const body = this.statement();
+        return new Stmt_1.Stmt.While(condition, body);
     }
     ifStatement() {
         this.consume(types_1.TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
@@ -281,7 +290,6 @@ class Parser {
      */
     assignment() {
         const expr = this.or();
-        console.log({ expr });
         if (!this.match(types_1.TokenType.EQUAL))
             return expr;
         const equals = this.previous();

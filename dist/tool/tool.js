@@ -23,6 +23,7 @@ class GenerateAst {
             "If : Expr condition, Stmt thenBranch, Stmt elseBranch",
             "Print : Expr expression",
             "Var : Token name, Expr initializer",
+            "While : Expr condition, Stmt body",
         ], [
             { from: './Expr', what: 'Expr' },
             { from: './token/token', what: 'Token' },
