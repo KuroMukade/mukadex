@@ -43,7 +43,7 @@ export class Scanner implements IScanner {
     /**
      * Grabs the text of the current lexeme and creates a new token for it
      */
-    private addToken(type: TokenType, literal: null | string = null): void {
+    private addToken(type: TokenType, literal: null | Object = null): void {
         const text = this.source.substring(this.start, this.current);
         this.tokens.push(new Token(type, text, literal, this.line));
     }
@@ -115,9 +115,10 @@ export class Scanner implements IScanner {
                 this.advance();
             };
         }
+        
         this.addToken(
             TokenType.NUMBER,
-            this.source.substring(this.start, this.current),
+            Number(this.source.substring(this.start, this.current)),
         );
     }
 

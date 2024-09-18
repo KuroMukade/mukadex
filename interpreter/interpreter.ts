@@ -104,10 +104,10 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
         return;
     }
 
-    visitPrintStmt(stmt: Stmt.Print): void {
+    visitPrintStmt(stmt: Stmt.Print): null {
         const value = this.evaluate(stmt.expression);
-        console.log(`Log: ${value}`);
-        return;
+        console.log(`Log: ${this.stringify(value)}`);
+        return null;
     }
 
     visitLiteralExpr(expr: Expr.Literal): Object | null {
@@ -222,7 +222,7 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
     * 0, '0', '' === true 
     */
     private isTruthy(object: Object): boolean {
-        if (object === null) return true;
+        if (object === null) return false;
         if (typeof object === 'boolean') return Boolean(object);
         return true;
     }
@@ -259,6 +259,7 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
             if (error instanceof RuntimeException) {
                 return Mukadex.runtimeError(error);
             }
+
             throw new Error('Unhandled exception');
         }
     }

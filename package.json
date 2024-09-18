@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "tsc",
-    "start": "npm run compile && node dist/mukadex.js",
+    "start": "node dist/mukadex.js",
     "tool": "node dist/tool/tool.js"
   },
   "author": "mukade",

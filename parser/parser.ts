@@ -282,6 +282,7 @@ export class Parser {
      */
     private comparison() {
         let expr: Expr = this.term();
+
         while (this.match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL)) {
             const operator = this.previous();
             const right: Expr = this.term();

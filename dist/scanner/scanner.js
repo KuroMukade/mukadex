@@ -105,7 +105,7 @@ class Scanner {
             }
             ;
         }
-        this.addToken(types_1.TokenType.NUMBER, this.source.substring(this.start, this.current));
+        this.addToken(types_1.TokenType.NUMBER, Number(this.source.substring(this.start, this.current)));
     }
     /** */
     isDigit(character) {

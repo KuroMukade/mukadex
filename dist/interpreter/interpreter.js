@@ -53,6 +53,13 @@ class Interpreter {
         this.executeBlock(stmt.statements, new environment_1.Environment(this.environment));
         return null;
     }
+    visitWhileStmt(stmt) {
+        console.log({ condition: stmt.condition });
+        while (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.body);
+        }
+        return null;
+    }
     visitAssignExpr(expr) {
         const value = this.evaluate(expr.value);
         this.environment.assign(expr.name, value);
@@ -82,8 +89,8 @@ class Interpreter {
     }
     visitPrintStmt(stmt) {
         const value = this.evaluate(stmt.expression);
-        console.log(`Log: ${value}`);
-        return;
+        console.log(`Log: ${this.stringify(value)}`);
+        return null;
     }
     visitLiteralExpr(expr) {
         return expr.value;
@@ -175,7 +182,7 @@ class Interpreter {
     */
     isTruthy(object) {
         if (object === null)
-            return true;
+            return false;
         if (typeof object === 'boolean')
             return Boolean(object);
         return true;

@@ -1,15 +1,6 @@
-var num = 3 or "string";
+var i = 0;
 
-print 3 and num;
-
-if (true) {
-    print "Code branching is working!";
-} else {
-    print "This will not execute";
-}
-
-if (false) {
-    print "This will not execute";
-} else {
-    print "YaaaaaaYYYY";
+while (i < 4) {
+    print i;
+    i = i + 1;
 }
