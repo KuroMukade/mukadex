@@ -8,7 +8,13 @@ const types_1 = require("../token/types");
 /**
  * Precedence levels:
  *
- * expression -> equality
+ * expression -> assignment;
+ *
+ * assignment -> IDENTIFIER "=" assignment | logic_or
+ *
+ * logic_or -> logic_and ( "or" logic and )* ;
+ *
+ * logic_and -> equality ( "and" equality )* ;
  *
  * equality -> comparison ( ( "!=" | "==" ) comparison )* ;
  *
@@ -41,9 +47,6 @@ class Parser {
      */
     equality() {
         let expr = this.comparison();
-        /**
-         * ( !== | == ) and ()* is the while loop
-        */
         while (this.match(types_1.TokenType.BANG_EQUAL, types_1.TokenType.EQUAL_EQUAL)) {
             const operator = this.previous();
             const right = this.comparison();
@@ -142,12 +145,25 @@ class Parser {
         return statements;
     }
     statement() {
+        if (this.match(types_1.TokenType.IF))
+            return this.ifStatement();
         if (this.match(types_1.TokenType.PRINT))
             return this.printStatement();
         if (this.match(types_1.TokenType.LEFT_BRACE)) {
             return new Stmt_1.Stmt.Block(this.block());
         }
         return this.expressionStatement();
+    }
+    ifStatement() {
+        this.consume(types_1.TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+        const condition = this.expression();
+        this.consume(types_1.TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
+        const thenBranch = this.statement();
+        let elseBranch = null;
+        if (this.match(types_1.TokenType.ELSE)) {
+            elseBranch = this.statement();
+        }
+        return new Stmt_1.Stmt.If(condition, thenBranch, elseBranch);
     }
     printStatement() {
         const expr = this.expression();
@@ -226,6 +242,24 @@ class Parser {
         }
         return expr;
     }
+    and() {
+        let expr = this.equality();
+        while (this.match(types_1.TokenType.AND)) {
+            const operator = this.previous();
+            const right = this.equality();
+            expr = new Expr_1.Expr.Logical(expr, operator, right);
+        }
+        return expr;
+    }
+    or() {
+        let expr = this.and();
+        while (this.match(types_1.TokenType.OR)) {
+            const operator = this.previous();
+            const right = this.and();
+            expr = new Expr_1.Expr.Logical(expr, operator, right);
+        }
+        return expr;
+    }
     /**
      * There are l-values and r-values
      *
@@ -246,7 +280,8 @@ class Parser {
      *
      */
     assignment() {
-        const expr = this.equality();
+        const expr = this.or();
+        console.log({ expr });
         if (!this.match(types_1.TokenType.EQUAL))
             return expr;
         const equals = this.previous();
@@ -257,10 +292,6 @@ class Parser {
         }
         return this.error(equals, "Invalid assignment target.");
     }
-    /**
-     * Expands to the equality rule
-     * @returns
-     */
     expression() {
         return this.assignment();
     }

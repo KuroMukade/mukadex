@@ -33,6 +33,18 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
         }
     }
 
+    visitLogicalExpr(expr: Expr.Logical): Object | null {
+        const left = this.evaluate(expr.left);
+
+        if (expr.operator.type === TokenType.OR) {
+            if (this.isTruthy(left)) return left;
+        } else {
+            if (!this.isTruthy(left)) return left;
+        }
+
+        return this.evaluate(expr.right);
+    }
+
     visitIfStmt(stmt: Stmt.If): null {
         if (this.isTruthy(this.evaluate(stmt.condition))) {
             this.execute(stmt.thenBranch);
@@ -86,7 +98,7 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
 
     visitPrintStmt(stmt: Stmt.Print): void {
         const value = this.evaluate(stmt.expression);
-        console.log(this.stringify(value));
+        console.log(`Log: ${value}`);
         return;
     }
 

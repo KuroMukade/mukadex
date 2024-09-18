@@ -52,6 +52,20 @@ exports.Expr = Expr;
         }
     }
     Expr.Literal = Literal;
+    class Logical {
+        left;
+        operator;
+        right;
+        accept(visitor) {
+            return visitor.visitLogicalExpr(this);
+        }
+        constructor(left, operator, right) {
+            this.left = left;
+            this.operator = operator;
+            this.right = right;
+        }
+    }
+    Expr.Logical = Logical;
     class Unary {
         operator;
         right;

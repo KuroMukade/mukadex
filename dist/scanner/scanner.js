@@ -6,7 +6,6 @@ const token_1 = require("../token/token");
 const types_1 = require("../token/types");
 const getKeywords = () => {
     const keywords = new Map();
-    keywords.set("and", types_1.TokenType.AND);
     keywords.set("class", types_1.TokenType.CLASS);
     keywords.set("else", types_1.TokenType.ELSE);
     keywords.set("false", types_1.TokenType.FALSE);
@@ -16,6 +15,7 @@ const getKeywords = () => {
     keywords.set("if", types_1.TokenType.IF);
     keywords.set("nil", types_1.TokenType.NIL);
     keywords.set("or", types_1.TokenType.OR);
+    keywords.set("and", types_1.TokenType.AND);
     keywords.set("print", types_1.TokenType.PRINT);
     keywords.set("return", types_1.TokenType.RETURN);
     keywords.set("super", types_1.TokenType.SUPER);

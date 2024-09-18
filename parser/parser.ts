@@ -7,7 +7,13 @@ import { TokenType } from "../token/types";
 /**
  * Precedence levels:
  * 
- * expression -> equality
+ * expression -> assignment;
+ * 
+ * assignment -> IDENTIFIER "=" assignment | logic_or
+ * 
+ * logic_or -> logic_and ( "or" logic and )* ;
+ * 
+ * logic_and -> equality ( "and" equality )* ;
  * 
  * equality -> comparison ( ( "!=" | "==" ) comparison )* ;
  * 
@@ -46,9 +52,6 @@ export class Parser {
     private equality() {
         let expr: Expr = this.comparison();
 
-        /**
-         * ( !== | == ) and ()* is the while loop
-        */
         while (this.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
             const operator: Token = this.previous();
             const right: Expr = this.comparison();
@@ -276,6 +279,30 @@ export class Parser {
         return expr;
     }
 
+    private and(): Expr {
+        let expr = this.equality();
+
+        while (this.match(TokenType.AND)) {
+            const operator = this.previous();
+            const right = this.equality();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private or(): Expr {
+        let expr = this.and();
+
+        while (this.match(TokenType.OR)) {
+            const operator = this.previous();
+            const right = this.and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
     /**
      * There are l-values and r-values
      * 
@@ -296,7 +323,7 @@ export class Parser {
      * 
      */
     private assignment() {
-        const expr: Expr = this.equality();
+        const expr = this.or();
 
         if (!this.match(TokenType.EQUAL)) return expr;
 
@@ -311,10 +338,6 @@ export class Parser {
         return this.error(equals, "Invalid assignment target.");
     }
 
-    /**
-     * Expands to the equality rule
-     * @returns 
-     */
     private expression() {
         return this.assignment();
     }

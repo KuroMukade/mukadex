@@ -9,6 +9,7 @@ export interface Visitor<T> {
     visitBinaryExpr(expr: Expr.Binary): T;
     visitGroupingExpr(expr: Expr.Grouping): T;
     visitLiteralExpr(expr: Expr.Literal): T;
+    visitLogicalExpr(expr: Expr.Logical): T;
     visitUnaryExpr(expr: Expr.Unary): T;
     visitVariableExpr(expr: Expr.Variable): T;
 }
@@ -65,6 +66,22 @@ export namespace Expr {
 
       constructor(value: Object | null) {
         this.value = value;
+      }
+    }
+
+    export class Logical implements Expr {
+      readonly left: Expr;
+      readonly operator: Token;
+      readonly right: Expr;
+
+      accept<T>(visitor: Visitor<T>) {
+          return visitor.visitLogicalExpr(this);
+      }
+
+      constructor(left: Expr, operator: Token, right: Expr) {
+        this.left = left;
+        this.operator = operator;
+        this.right = right;
       }
     }
 

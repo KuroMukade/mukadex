@@ -27,6 +27,28 @@ class Interpreter {
             this.environment = previous;
         }
     }
+    visitLogicalExpr(expr) {
+        const left = this.evaluate(expr.left);
+        if (expr.operator.type === types_1.TokenType.OR) {
+            if (this.isTruthy(left))
+                return left;
+        }
+        else {
+            if (!this.isTruthy(left))
+                return left;
+        }
+        return this.evaluate(expr.right);
+    }
+    visitIfStmt(stmt) {
+        if (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.thenBranch);
+            return null;
+        }
+        if (stmt.elseBranch) {
+            this.execute(stmt.elseBranch);
+        }
+        return null;
+    }
     visitBlockStmt(stmt) {
         this.executeBlock(stmt.statements, new environment_1.Environment(this.environment));
         return null;
@@ -60,7 +82,7 @@ class Interpreter {
     }
     visitPrintStmt(stmt) {
         const value = this.evaluate(stmt.expression);
-        console.log(this.stringify(value));
+        console.log(`Log: ${value}`);
         return;
     }
     visitLiteralExpr(expr) {

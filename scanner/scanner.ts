@@ -4,7 +4,6 @@ import { TokenType } from "../token/types";
 
 const getKeywords = () => {
     const keywords = new Map<string, TokenType>();
-    keywords.set("and", TokenType.AND);
     keywords.set("class", TokenType.CLASS);
     keywords.set("else", TokenType.ELSE);
     keywords.set("false", TokenType.FALSE);
@@ -14,6 +13,7 @@ const getKeywords = () => {
     keywords.set("if", TokenType.IF);
     keywords.set("nil", TokenType.NIL);
     keywords.set("or", TokenType.OR);
+    keywords.set("and", TokenType.AND);
     keywords.set("print", TokenType.PRINT);
     keywords.set("return", TokenType.RETURN);
     keywords.set("super", TokenType.SUPER);
@@ -153,6 +153,7 @@ export class Scanner implements IScanner {
         if (!type) {
             type = TokenType.IDENTIFIER;
         }
+
         this.addToken(type, null);
     }
 
@@ -161,6 +162,7 @@ export class Scanner implements IScanner {
      */
     scanToken() {
         const character = this.advance();
+
         switch (character) {
             case '(': this.addToken(TokenType.LEFT_PAREN); break;
             case ')': this.addToken(TokenType.RIGHT_PAREN); break;
