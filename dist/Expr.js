@@ -78,6 +78,20 @@ exports.Expr = Expr;
         }
     }
     Expr.Unary = Unary;
+    class Call {
+        callee;
+        paren;
+        args;
+        accept(visitor) {
+            return visitor.visitCallExpr(this);
+        }
+        constructor(callee, paren, args) {
+            this.callee = callee;
+            this.paren = paren;
+            this.args = args;
+        }
+    }
+    Expr.Call = Call;
     class Variable {
         name;
         accept(visitor) {

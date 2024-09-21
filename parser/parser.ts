@@ -25,6 +25,8 @@ import { TokenType } from "../token/types";
  * 
  * unary -> ( '!' | '-' ) unary | primary
  * 
+ * call → primary ( "(" arguments? ")" )* ;
+ * 
  * Contains all literals and grouping expressions:
  * primary -> NUMBER STRING true false NIL | '(' expression ')' | IDENTIFIER
  * 
@@ -348,7 +350,36 @@ export class Parser {
             return new Expr.Unary(operator, right);
         }
 
-        return this.primary();
+        return this.call();
+    }
+
+    private call(): Expr {
+        let expr: Expr = this.primary();
+
+        while (true) {
+            if (this.match(TokenType.LEFT_PAREN)) {
+                expr = this.finishCall(expr);
+            } else {
+                break;
+            }
+        }
+
+        return expr;
+    }
+
+    private finishCall(callee: Expr): Expr {
+        const fnArguments: Expr[] = [];
+        if (!this.check(TokenType.RIGHT_PAREN)) {
+            while (this.match(TokenType.COMMA)) {
+                if (fnArguments.length >= 255) {
+                    this.error(this.peek(), "Can't have more than 255 arguments");
+                }
+                fnArguments.push(this.expression());
+            }
+        }
+
+        const paren = this.consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.");
+        return new Expr.Call(callee, paren, fnArguments);
     }
 
     private factor(): Expr {

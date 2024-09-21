@@ -11,6 +11,7 @@ export interface Visitor<T> {
     visitLiteralExpr(expr: Expr.Literal): T;
     visitLogicalExpr(expr: Expr.Logical): T;
     visitUnaryExpr(expr: Expr.Unary): T;
+    visitCallExpr(expr: Expr.Call): T;
     visitVariableExpr(expr: Expr.Variable): T;
 }
 
@@ -96,6 +97,22 @@ export namespace Expr {
       constructor(operator: Token, right: Expr) {
         this.operator = operator;
         this.right = right;
+      }
+    }
+
+    export class Call implements Expr {
+      readonly callee: Expr;
+      readonly paren: Token;
+      readonly args: Expr[];
+
+      accept<T>(visitor: Visitor<T>) {
+          return visitor.visitCallExpr(this);
+      }
+
+      constructor(callee: Expr, paren: Token, args: Expr[]) {
+        this.callee = callee;
+        this.paren = paren;
+        this.args = args;
       }
     }
 

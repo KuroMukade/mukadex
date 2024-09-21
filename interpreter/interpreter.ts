@@ -16,6 +16,15 @@ export class RuntimeException {
     }
 }
 
+interface MukadexCallable {
+    callFn(interpreter: Interpreter, args: Object[]);
+};
+
+const isCall = (obj: Object): obj is MukadexCallable => {
+    if (!('callFn' in obj)) return false;
+    return true;
+};
+
 export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void> {
     private environment = new Environment();
 
@@ -56,6 +65,22 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
         }
 
         return null;
+    }
+
+    visitCallExpr(expr: Expr.Call): Object | null {
+        const callee = this.evaluate(expr.callee);
+        const args: Object[] = [];
+
+        for (const argument of expr.args) {
+            args.push(this.evaluate(argument));
+        }
+
+        if (!isCall(expr)) {
+            throw new RuntimeException(expr.paren, "Can only call functions and classes.")
+        }
+
+        const fn: MukadexCallable = callee;
+        return fn.callFn(this, args);
     }
 
     visitBlockStmt(stmt: Stmt.Block): null {

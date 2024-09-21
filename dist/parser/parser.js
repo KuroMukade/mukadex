@@ -26,6 +26,8 @@ const types_1 = require("../token/types");
  *
  * unary -> ( '!' | '-' ) unary | primary
  *
+ * call → primary ( "(" arguments? ")" )* ;
+ *
  * Contains all literals and grouping expressions:
  * primary -> NUMBER STRING true false NIL | '(' expression ')' | IDENTIFIER
  *

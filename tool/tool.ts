@@ -18,6 +18,7 @@ export class GenerateAst {
             "Literal : Object value",
             "Logical: Expr left, Token operator, Expr right",
             "Unary : Token operator, Expr right",
+            "Call: Expr callee, Token paren, Expr[] args",
             "Variable : Token name",
         ], [{from: './token/token', what: 'Token'}]);
 
