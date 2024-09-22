@@ -16,7 +16,8 @@ export class RuntimeException {
     }
 }
 
-interface MukadexCallable {
+export interface MukadexCallable {
+    arity: () => number;
     callFn(interpreter: Interpreter, args: Object[]);
 };
 
@@ -26,7 +27,22 @@ const isCall = (obj: Object): obj is MukadexCallable => {
 };
 
 export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void> {
-    private environment = new Environment();
+    public globals = new Environment();
+    private environment = this.globals;
+
+    constructor() {
+        this.globals.define('clock', {
+            arity: () => 0,
+            callFn(interpreter: Interpreter, args: Object[]) {
+                return performance.now();
+            },
+            toString() { return "<native fn>" },
+        } as MukadexCallable);
+    }
+
+    visitFunctionStmt(stmt: Stmt.Function): void {
+        throw new Error("Method not implemented.");
+    }
 
     private executeBlock(statements: Stmt[], environment: Environment) {
         const previous = this.environment;
@@ -79,7 +95,10 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
             throw new RuntimeException(expr.paren, "Can only call functions and classes.")
         }
 
-        const fn: MukadexCallable = callee;
+        const fn = callee as MukadexCallable;
+        if (args.length !== fn.arity()) {
+            throw new RuntimeException(expr.paren, `Expected ${fn.arity} arguments but got ${args.length}.`);
+        }
         return fn.callFn(this, args);
     }
 

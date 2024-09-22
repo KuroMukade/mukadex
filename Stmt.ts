@@ -8,6 +8,7 @@ export abstract class Stmt {
 export interface Visitor<T> {
     visitBlockStmt(stmt: Stmt.Block): T;
     visitExpressionStmt(stmt: Stmt.Expression): T;
+    visitFunctionStmt(stmt: Stmt.Function): T;
     visitIfStmt(stmt: Stmt.If): T;
     visitPrintStmt(stmt: Stmt.Print): T;
     visitVarStmt(stmt: Stmt.Var): T;
@@ -36,6 +37,22 @@ export namespace Stmt {
 
       constructor(expression: Expr) {
         this.expression = expression;
+      }
+    }
+
+    export class Function implements Stmt {
+      readonly name: Token;
+      readonly params: Token[];
+      readonly body: Stmt[];
+
+      accept<T>(visitor: Visitor<T>) {
+          return visitor.visitFunctionStmt(this);
+      }
+
+      constructor(name: Token, params: Token[], body: Stmt[]) {
+        this.name = name;
+        this.params = params;
+        this.body = body;
       }
     }
 

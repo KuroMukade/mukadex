@@ -307,7 +307,32 @@ class Parser {
             const right = this.unary();
             return new Expr_1.Expr.Unary(operator, right);
         }
-        return this.primary();
+        return this.call();
+    }
+    call() {
+        let expr = this.primary();
+        while (true) {
+            if (this.match(types_1.TokenType.LEFT_PAREN)) {
+                expr = this.finishCall(expr);
+            }
+            else {
+                break;
+            }
+        }
+        return expr;
+    }
+    finishCall(callee) {
+        const fnArguments = [];
+        if (!this.check(types_1.TokenType.RIGHT_PAREN)) {
+            while (this.match(types_1.TokenType.COMMA)) {
+                if (fnArguments.length >= 255) {
+                    this.error(this.peek(), "Can't have more than 255 arguments");
+                }
+                fnArguments.push(this.expression());
+            }
+        }
+        const paren = this.consume(types_1.TokenType.RIGHT_PAREN, "Expect ')' after arguments.");
+        return new Expr_1.Expr.Call(callee, paren, fnArguments);
     }
     factor() {
         let expr = this.unary();

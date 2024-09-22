@@ -1,3 +1,4 @@
+import { MAX_FUNCTION_ARGUMENTS_LENGTH } from "../constants";
 import { Expr } from "../Expr";
 import { Mukadex } from "../mukadex";
 import { Stmt } from "../Stmt";
@@ -319,9 +320,35 @@ export class Parser {
         return statements;
     }
 
+    private function(kind: "function" | "method") {
+        const name = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name.`);
+        this.consume(TokenType.LEFT_PAREN, `Expect '(' after ${kind}.`);
+
+        const parameters: Token[] = [];
+
+        if (!this.check(TokenType.RIGHT_PAREN)) {
+            while (this.match(TokenType.COMMA)) {
+                if (parameters.length >= MAX_FUNCTION_ARGUMENTS_LENGTH) {
+                    this.error(
+                        this.peek(),
+                        `Can't have more than ${MAX_FUNCTION_ARGUMENTS_LENGTH} parameters.`,
+                    );
+                }
+
+                parameters.push(this.consume(TokenType.IDENTIFIER, "Expect parameter name."));
+            }
+        }
+        this.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
+        this.consume(TokenType.LEFT_BRACE, `Expect '{' before ${kind} body.`);
+
+        const body = this.block();
+        return new Stmt.Function(name, parameters, body);
+    }
+
     private declaration(): Stmt | null {
         try {
             if (this.match(TokenType.VAR)) return this.varDeclaration();
+            if (this.match(TokenType.FUN)) return this.function("function");
             return this.statement();
         } catch (e) {
             if (e instanceof ParseError) {
@@ -371,8 +398,8 @@ export class Parser {
         const fnArguments: Expr[] = [];
         if (!this.check(TokenType.RIGHT_PAREN)) {
             while (this.match(TokenType.COMMA)) {
-                if (fnArguments.length >= 255) {
-                    this.error(this.peek(), "Can't have more than 255 arguments");
+                if (fnArguments.length >= MAX_FUNCTION_ARGUMENTS_LENGTH) {
+                    this.error(this.peek(), "Can't have more than MAX_FUNCTION_ARGUMENTS_LENGTH arguments");
                 }
                 fnArguments.push(this.expression());
             }

@@ -13,8 +13,24 @@ class RuntimeException {
     }
 }
 exports.RuntimeException = RuntimeException;
+;
+const isCall = (obj) => {
+    if (!('callFn' in obj))
+        return false;
+    return true;
+};
 class Interpreter {
-    environment = new environment_1.Environment();
+    globals = new environment_1.Environment();
+    environment = this.globals;
+    constructor() {
+        this.globals.define('clock', {
+            arity: 0,
+            callFn(interpreter, args) {
+                return performance.now();
+            },
+            toString() { return "<native fn>"; },
+        });
+    }
     executeBlock(statements, environment) {
         const previous = this.environment;
         try {
@@ -48,6 +64,21 @@ class Interpreter {
             this.execute(stmt.elseBranch);
         }
         return null;
+    }
+    visitCallExpr(expr) {
+        const callee = this.evaluate(expr.callee);
+        const args = [];
+        for (const argument of expr.args) {
+            args.push(this.evaluate(argument));
+        }
+        if (!isCall(expr)) {
+            throw new RuntimeException(expr.paren, "Can only call functions and classes.");
+        }
+        const fn = callee;
+        if (args.length !== fn.arity) {
+            throw new RuntimeException(expr.paren, `Expected ${fn.arity} arguments but got ${args.length}.`);
+        }
+        return fn.callFn(this, args);
     }
     visitBlockStmt(stmt) {
         this.executeBlock(stmt.statements, new environment_1.Environment(this.environment));

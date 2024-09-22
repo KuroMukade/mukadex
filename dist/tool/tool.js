@@ -15,12 +15,13 @@ class GenerateAst {
             "Literal : Object value",
             "Logical: Expr left, Token operator, Expr right",
             "Unary : Token operator, Expr right",
-            "Call: Expr callee, Token paren, Expr[] ...args",
+            "Call: Expr callee, Token paren, Expr[] args",
             "Variable : Token name",
         ], [{ from: './token/token', what: 'Token' }]);
         this.defineAst(outputDir, "Stmt", [
             "Block : Stmt[] statements",
             "Expression : Expr expression",
+            "Function : Token name, Token[] params, Stmt[] body",
             "If : Expr condition, Stmt thenBranch, Stmt elseBranch",
             "Print : Expr expression",
             "Var : Token name, Expr initializer",
