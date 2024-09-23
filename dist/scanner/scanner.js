@@ -11,7 +11,7 @@ const getKeywords = () => {
     keywords.set("false", types_1.TokenType.FALSE);
     keywords.set("true", types_1.TokenType.TRUE);
     keywords.set("for", types_1.TokenType.FOR);
-    keywords.set("function", types_1.TokenType.FUNCTION);
+    keywords.set("fun", types_1.TokenType.FUN);
     keywords.set("if", types_1.TokenType.IF);
     keywords.set("nil", types_1.TokenType.NIL);
     keywords.set("or", types_1.TokenType.OR);

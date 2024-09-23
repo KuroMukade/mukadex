@@ -1,12 +1,12 @@
 import { Environment } from "./environment/environment";
 import { Stmt } from "./Stmt";
-import { Interpreter, MukadexCallable, RuntimeException } from "./interpreter/interpreter";
+import { Interpreter, MukadexCallable } from "./interpreter/interpreter";
 
 export class MukadexFunction implements MukadexCallable {
     private readonly declaration: Stmt.Function; 
 
-    constructor(declrataion: Stmt.Function) {
-        this.declaration = declrataion;
+    constructor(declaration: Stmt.Function) {
+        this.declaration = declaration;
     }
 
     callFn(interpreter: Interpreter, args: Object[]) {
@@ -24,5 +24,9 @@ export class MukadexFunction implements MukadexCallable {
 
     arity(): number {
         return this.declaration.params.length;
+    }
+
+    toString(): string {
+        return `<fn ${this.declaration.name.lexeme}>`
     }
 }

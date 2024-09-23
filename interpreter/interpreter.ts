@@ -1,3 +1,4 @@
+import { MukadexFunction } from "../mukadexFunction";
 import { Expr, Visitor as ExprVisitor } from "../Expr";
 import { Stmt, Visitor as StmtVisitor } from "../Stmt";
 import { Environment } from "../environment/environment";
@@ -21,11 +22,6 @@ export interface MukadexCallable {
     callFn(interpreter: Interpreter, args: Object[]);
 };
 
-const isCall = (obj: Object): obj is MukadexCallable => {
-    if (!('callFn' in obj)) return false;
-    return true;
-};
-
 export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void> {
     public globals = new Environment();
     private environment = this.globals;
@@ -40,11 +36,13 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
         } as MukadexCallable);
     }
 
-    visitFunctionStmt(stmt: Stmt.Function): void {
-        throw new Error("Method not implemented.");
+    visitFunctionStmt(stmt: Stmt.Function): null {
+        const fn = new MukadexFunction(stmt);
+        this.environment.define(stmt.name.lexeme, fn);
+        return null;
     }
 
-    private executeBlock(statements: Stmt[], environment: Environment) {
+    public executeBlock(statements: Stmt[], environment: Environment) {
         const previous = this.environment;
 
         try {
@@ -91,16 +89,15 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
             args.push(this.evaluate(argument));
         }
 
-        if (!isCall(expr)) {
-            throw new RuntimeException(expr.paren, "Can only call functions and classes.")
-        }
-
         const fn = callee as MukadexCallable;
+
         if (args.length !== fn.arity()) {
             throw new RuntimeException(expr.paren, `Expected ${fn.arity} arguments but got ${args.length}.`);
         }
+
         return fn.callFn(this, args);
     }
+
 
     visitBlockStmt(stmt: Stmt.Block): null {
         this.executeBlock(stmt.statements, new Environment(this.environment));

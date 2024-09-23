@@ -9,7 +9,7 @@ const getKeywords = () => {
     keywords.set("false", TokenType.FALSE);
     keywords.set("true", TokenType.TRUE);
     keywords.set("for", TokenType.FOR);
-    keywords.set("function", TokenType.FUNCTION);
+    keywords.set("fun", TokenType.FUN);
     keywords.set("if", TokenType.IF);
     keywords.set("nil", TokenType.NIL);
     keywords.set("or", TokenType.OR);

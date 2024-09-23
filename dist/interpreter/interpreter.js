@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Interpreter = exports.RuntimeException = void 0;
+const mukadexFunction_1 = require("../mukadexFunction");
 const environment_1 = require("../environment/environment");
 const mukadex_1 = require("../mukadex");
 const types_1 = require("../token/types");
@@ -14,22 +15,22 @@ class RuntimeException {
 }
 exports.RuntimeException = RuntimeException;
 ;
-const isCall = (obj) => {
-    if (!('callFn' in obj))
-        return false;
-    return true;
-};
 class Interpreter {
     globals = new environment_1.Environment();
     environment = this.globals;
     constructor() {
         this.globals.define('clock', {
-            arity: 0,
+            arity: () => 0,
             callFn(interpreter, args) {
                 return performance.now();
             },
             toString() { return "<native fn>"; },
         });
+    }
+    visitFunctionStmt(stmt) {
+        const fn = new mukadexFunction_1.MukadexFunction(stmt);
+        this.environment.define(stmt.name.lexeme, fn);
+        return null;
     }
     executeBlock(statements, environment) {
         const previous = this.environment;
@@ -71,13 +72,11 @@ class Interpreter {
         for (const argument of expr.args) {
             args.push(this.evaluate(argument));
         }
-        if (!isCall(expr)) {
-            throw new RuntimeException(expr.paren, "Can only call functions and classes.");
-        }
         const fn = callee;
-        if (args.length !== fn.arity) {
+        if (args.length !== fn.arity()) {
             throw new RuntimeException(expr.paren, `Expected ${fn.arity} arguments but got ${args.length}.`);
         }
+        console.log(this);
         return fn.callFn(this, args);
     }
     visitBlockStmt(stmt) {

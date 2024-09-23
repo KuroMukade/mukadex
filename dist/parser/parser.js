@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Parser = void 0;
+const constants_1 = require("../constants");
 const Expr_1 = require("../Expr");
 const mukadex_1 = require("../mukadex");
 const Stmt_1 = require("../Stmt");
@@ -279,10 +280,30 @@ class Parser {
         }
         return statements;
     }
+    function(kind) {
+        const name = this.consume(types_1.TokenType.IDENTIFIER, `Expect ${kind} name.`);
+        this.consume(types_1.TokenType.LEFT_PAREN, `Expect '(' after ${kind}.`);
+        const parameters = [];
+        if (!this.check(types_1.TokenType.RIGHT_PAREN)) {
+            do {
+                if (parameters.length >= constants_1.MAX_FUNCTION_ARGUMENTS_LENGTH) {
+                    this.error(this.peek(), `Can't have more than ${constants_1.MAX_FUNCTION_ARGUMENTS_LENGTH} parameters.`);
+                }
+                parameters.push(this.consume(types_1.TokenType.IDENTIFIER, "Expect parameter name."));
+            } while (this.match(types_1.TokenType.COMMA));
+        }
+        this.consume(types_1.TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
+        this.consume(types_1.TokenType.LEFT_BRACE, `Expect '{' before ${kind} body.`);
+        const body = this.block();
+        return new Stmt_1.Stmt.Function(name, parameters, body);
+    }
     declaration() {
         try {
             if (this.match(types_1.TokenType.VAR))
                 return this.varDeclaration();
+            if (this.match(types_1.TokenType.FUN)) {
+                return this.function("function");
+            }
             return this.statement();
         }
         catch (e) {
@@ -324,12 +345,12 @@ class Parser {
     finishCall(callee) {
         const fnArguments = [];
         if (!this.check(types_1.TokenType.RIGHT_PAREN)) {
-            while (this.match(types_1.TokenType.COMMA)) {
-                if (fnArguments.length >= 255) {
-                    this.error(this.peek(), "Can't have more than 255 arguments");
+            do {
+                if (fnArguments.length >= constants_1.MAX_FUNCTION_ARGUMENTS_LENGTH) {
+                    this.error(this.peek(), `Can't have more than ${constants_1.MAX_FUNCTION_ARGUMENTS_LENGTH} arguments`);
                 }
                 fnArguments.push(this.expression());
-            }
+            } while (this.match(types_1.TokenType.COMMA));
         }
         const paren = this.consume(types_1.TokenType.RIGHT_PAREN, "Expect ')' after arguments.");
         return new Expr_1.Expr.Call(callee, paren, fnArguments);

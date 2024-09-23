@@ -66,7 +66,7 @@ export class Parser {
 
     private match(...types: TokenType[]): boolean {
         for (const type of types) {
-            // check if current token has any of the given types
+                // check if current token has any of the given types
             if (this.check(type)) {
                 this.advance();
                 return true;
@@ -327,17 +327,15 @@ export class Parser {
         const parameters: Token[] = [];
 
         if (!this.check(TokenType.RIGHT_PAREN)) {
-            while (this.match(TokenType.COMMA)) {
+            do {
                 if (parameters.length >= MAX_FUNCTION_ARGUMENTS_LENGTH) {
-                    this.error(
-                        this.peek(),
-                        `Can't have more than ${MAX_FUNCTION_ARGUMENTS_LENGTH} parameters.`,
-                    );
+                    this.error(this.peek(), `Can't have more than ${MAX_FUNCTION_ARGUMENTS_LENGTH} parameters.`);
                 }
 
                 parameters.push(this.consume(TokenType.IDENTIFIER, "Expect parameter name."));
-            }
+            } while (this.match(TokenType.COMMA))
         }
+
         this.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
         this.consume(TokenType.LEFT_BRACE, `Expect '{' before ${kind} body.`);
 
@@ -348,7 +346,9 @@ export class Parser {
     private declaration(): Stmt | null {
         try {
             if (this.match(TokenType.VAR)) return this.varDeclaration();
-            if (this.match(TokenType.FUN)) return this.function("function");
+            if (this.match(TokenType.FUN)) {
+                return this.function("function");
+            }
             return this.statement();
         } catch (e) {
             if (e instanceof ParseError) {
@@ -396,13 +396,14 @@ export class Parser {
 
     private finishCall(callee: Expr): Expr {
         const fnArguments: Expr[] = [];
+    
         if (!this.check(TokenType.RIGHT_PAREN)) {
-            while (this.match(TokenType.COMMA)) {
+            do {
                 if (fnArguments.length >= MAX_FUNCTION_ARGUMENTS_LENGTH) {
-                    this.error(this.peek(), "Can't have more than MAX_FUNCTION_ARGUMENTS_LENGTH arguments");
+                    this.error(this.peek(), `Can't have more than ${MAX_FUNCTION_ARGUMENTS_LENGTH} arguments`);
                 }
                 fnArguments.push(this.expression());
-            }
+            } while (this.match(TokenType.COMMA))
         }
 
         const paren = this.consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.");

@@ -23,9 +23,8 @@ class Mukadex {
     static runFile(path) {
         const bytes = (0, node_fs_1.readFileSync)(path);
         this.run(bytes.toString('utf-8'));
-        if (this.hasError) {
+        if (this.hasError)
             return;
-        }
         if (this.hadRuntimeError)
             return;
     }
@@ -34,6 +33,7 @@ class Mukadex {
         const tokens = scanner.scanTokens();
         const parser = new parser_1.Parser(tokens);
         const statements = parser.parse();
+        console.log({ statements });
         if (this.hasError)
             return;
         this.interpreter.interpret(statements);

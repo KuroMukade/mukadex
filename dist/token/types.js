@@ -28,7 +28,6 @@ var TokenType;
     TokenType["IDENTIFIER"] = "IDENTIFIER";
     TokenType["STRING"] = "STRING";
     TokenType["NUMBER"] = "NUMBER";
-    TokenType["FUNCTION"] = "FUNCTION";
     // Keywords.
     TokenType["AND"] = "AND";
     TokenType["CLASS"] = "CLASS";
