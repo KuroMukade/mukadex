@@ -17,6 +17,17 @@ export class RuntimeException {
     }
 }
 
+/**
+ * Used to control the flow, not the actual error handling
+ */
+export class Return {
+    readonly value: Object | null;
+
+    constructor(value: Object | null) {
+        this.value = value;
+    }
+}
+
 export interface MukadexCallable {
     arity: () => number;
     callFn(interpreter: Interpreter, args: Object[]);
@@ -79,6 +90,20 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
         }
 
         return null;
+    }
+
+    /**
+     * 
+     */
+    visitReturnStmt(stmt: Stmt.Return): void {
+        // We return null in functions by default
+        let value: Object | null = null;
+
+        if (stmt.value !== null) {
+            value = this.evaluate(stmt.value);
+        }
+
+        throw new Return(value);
     }
 
     visitCallExpr(expr: Expr.Call): Object | null {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Interpreter = exports.RuntimeException = void 0;
+exports.Interpreter = exports.Return = exports.RuntimeException = void 0;
 const mukadexFunction_1 = require("../mukadexFunction");
 const environment_1 = require("../environment/environment");
 const mukadex_1 = require("../mukadex");
@@ -14,6 +14,16 @@ class RuntimeException {
     }
 }
 exports.RuntimeException = RuntimeException;
+/**
+ * Used to control the flow, not the actual error handling
+ */
+class Return {
+    value;
+    constructor(value) {
+        this.value = value;
+    }
+}
+exports.Return = Return;
 ;
 class Interpreter {
     globals = new environment_1.Environment();
@@ -66,6 +76,17 @@ class Interpreter {
         }
         return null;
     }
+    /**
+     *
+     */
+    visitReturnStmt(stmt) {
+        // We return null in functions by default
+        let value = null;
+        if (stmt.value !== null) {
+            value = this.evaluate(stmt.value);
+        }
+        throw new Return(value);
+    }
     visitCallExpr(expr) {
         const callee = this.evaluate(expr.callee);
         const args = [];
@@ -76,7 +97,6 @@ class Interpreter {
         if (args.length !== fn.arity()) {
             throw new RuntimeException(expr.paren, `Expected ${fn.arity} arguments but got ${args.length}.`);
         }
-        console.log(this);
         return fn.callFn(this, args);
     }
     visitBlockStmt(stmt) {

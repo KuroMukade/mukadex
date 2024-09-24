@@ -9,6 +9,7 @@ export interface Visitor<T> {
     visitBlockStmt(stmt: Stmt.Block): T;
     visitExpressionStmt(stmt: Stmt.Expression): T;
     visitFunctionStmt(stmt: Stmt.Function): T;
+    visitReturnStmt(stmt: Stmt.Return): T;
     visitIfStmt(stmt: Stmt.If): T;
     visitPrintStmt(stmt: Stmt.Print): T;
     visitVarStmt(stmt: Stmt.Var): T;
@@ -53,6 +54,20 @@ export namespace Stmt {
         this.name = name;
         this.params = params;
         this.body = body;
+      }
+    }
+
+    export class Return implements Stmt {
+      readonly keyword: Token;
+      readonly value: Expr;
+
+      accept<T>(visitor: Visitor<T>) {
+          return visitor.visitReturnStmt(this);
+      }
+
+      constructor(keyword: Token, value: Expr) {
+        this.keyword = keyword;
+        this.value = value;
       }
     }
 

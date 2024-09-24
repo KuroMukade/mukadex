@@ -1,6 +1,6 @@
 import { Environment } from "./environment/environment";
 import { Stmt } from "./Stmt";
-import { Interpreter, MukadexCallable } from "./interpreter/interpreter";
+import { Interpreter, MukadexCallable, Return } from "./interpreter/interpreter";
 
 export class MukadexFunction implements MukadexCallable {
     private readonly declaration: Stmt.Function; 
@@ -18,7 +18,15 @@ export class MukadexFunction implements MukadexCallable {
             environment.define(name, value);
         }
 
-        interpreter.executeBlock(this.declaration.body, environment);
+        try {
+            interpreter.executeBlock(this.declaration.body, environment);
+        } catch (e) {
+            // check if we throw to return, not the error one
+            if (e instanceof Return) {
+                const returnValue = e;
+                return returnValue.value;
+            }
+        }
         return null;
     }
 

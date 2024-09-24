@@ -156,10 +156,21 @@ class Parser {
             return this.printStatement();
         if (this.match(types_1.TokenType.WHILE))
             return this.whileStatement();
+        if (this.match(types_1.TokenType.RETURN))
+            return this.returnStatement();
         if (this.match(types_1.TokenType.LEFT_BRACE)) {
             return new Stmt_1.Stmt.Block(this.block());
         }
         return this.expressionStatement();
+    }
+    returnStatement() {
+        const keyword = this.previous();
+        let value = null;
+        if (!this.check(types_1.TokenType.SEMICOLON)) {
+            value = this.expression();
+        }
+        this.consume(types_1.TokenType.SEMICOLON, `Expect ';' to come after return value.`);
+        return new Stmt_1.Stmt.Return(keyword, value);
     }
     /**
      * forStmt → "for" "(" ( varDecl | exprStmt | ";" )

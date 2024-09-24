@@ -172,10 +172,21 @@ export class Parser {
         if (this.match(TokenType.IF)) return this.ifStatement();
         if (this.match(TokenType.PRINT)) return this.printStatement();
         if (this.match(TokenType.WHILE)) return this.whileStatement();
+        if (this.match(TokenType.RETURN)) return this.returnStatement();
         if (this.match(TokenType.LEFT_BRACE)) {
             return new Stmt.Block(this.block());
         }
         return this.expressionStatement();
+    }
+
+    private returnStatement(): Stmt {
+        const keyword = this.previous();
+        let value: Expr | null = null;
+        if (!this.check(TokenType.SEMICOLON)) {
+            value = this.expression();
+        }
+        this.consume(TokenType.SEMICOLON, `Expect ';' to come after return value.`);
+        return new Stmt.Return(keyword, value);
     }
 
     /**
