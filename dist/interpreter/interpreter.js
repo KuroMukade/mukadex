@@ -38,7 +38,7 @@ class Interpreter {
         });
     }
     visitFunctionStmt(stmt) {
-        const fn = new mukadexFunction_1.MukadexFunction(stmt);
+        const fn = new mukadexFunction_1.MukadexFunction(stmt, this.environment);
         this.environment.define(stmt.name.lexeme, fn);
         return null;
     }
@@ -76,9 +76,6 @@ class Interpreter {
         }
         return null;
     }
-    /**
-     *
-     */
     visitReturnStmt(stmt) {
         // We return null in functions by default
         let value = null;

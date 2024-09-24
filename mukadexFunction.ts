@@ -4,13 +4,15 @@ import { Interpreter, MukadexCallable, Return } from "./interpreter/interpreter"
 
 export class MukadexFunction implements MukadexCallable {
     private readonly declaration: Stmt.Function; 
+    private closure: Environment;
 
-    constructor(declaration: Stmt.Function) {
+    constructor(declaration: Stmt.Function, closure: Environment) {
         this.declaration = declaration;
+        this.closure = closure;
     }
 
     callFn(interpreter: Interpreter, args: Object[]) {
-        const environment = new Environment(interpreter.globals);
+        const environment = new Environment(this.closure);
         for (let i = 0; i < this.declaration.params.length; i++) {
             const name = this.declaration.params[i].lexeme;
             const value = args[i];

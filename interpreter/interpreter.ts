@@ -48,7 +48,7 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
     }
 
     visitFunctionStmt(stmt: Stmt.Function): null {
-        const fn = new MukadexFunction(stmt);
+        const fn = new MukadexFunction(stmt, this.environment);
         this.environment.define(stmt.name.lexeme, fn);
         return null;
     }
@@ -92,9 +92,6 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
         return null;
     }
 
-    /**
-     * 
-     */
     visitReturnStmt(stmt: Stmt.Return): void {
         // We return null in functions by default
         let value: Object | null = null;
