@@ -43,17 +43,15 @@ export namespace Stmt {
 
     export class Function implements Stmt {
       readonly name: Token;
-      readonly params: Token[];
-      readonly body: Stmt[];
+      readonly fn: Expr.Function;
 
       accept<T>(visitor: Visitor<T>) {
           return visitor.visitFunctionStmt(this);
       }
 
-      constructor(name: Token, params: Token[], body: Stmt[]) {
+      constructor(name: Token, fn: Expr.Function) {
         this.name = name;
-        this.params = params;
-        this.body = body;
+        this.fn = fn;
       }
     }
 

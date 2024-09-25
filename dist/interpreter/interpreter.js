@@ -38,9 +38,13 @@ class Interpreter {
         });
     }
     visitFunctionStmt(stmt) {
-        const fn = new mukadexFunction_1.MukadexFunction(stmt, this.environment);
+        const fnName = stmt.name.lexeme;
+        const fn = new mukadexFunction_1.MukadexFunction(fnName, stmt.fn, this.environment);
         this.environment.define(stmt.name.lexeme, fn);
         return null;
+    }
+    visitFunctionExpr(expr) {
+        return new mukadexFunction_1.MukadexFunction(null, expr, this.environment);
     }
     executeBlock(statements, environment) {
         const previous = this.environment;

@@ -1,14 +1,16 @@
 import { Environment } from "./environment/environment";
-import { Stmt } from "./Stmt";
 import { Interpreter, MukadexCallable, Return } from "./interpreter/interpreter";
+import { Expr } from "./Expr";
 
 export class MukadexFunction implements MukadexCallable {
-    private readonly declaration: Stmt.Function; 
+    private readonly declaration: Expr.Function; 
     private closure: Environment;
+    private readonly name: string | null;
 
-    constructor(declaration: Stmt.Function, closure: Environment) {
+    constructor(name: string | null, declaration: Expr.Function, closure: Environment) {
         this.declaration = declaration;
         this.closure = closure;
+        this.name = name;
     }
 
     callFn(interpreter: Interpreter, args: Object[]) {
@@ -37,6 +39,9 @@ export class MukadexFunction implements MukadexCallable {
     }
 
     toString(): string {
-        return `<fn ${this.declaration.name.lexeme}>`
+        if (this.name === null) {
+            return '<fn anonymous>'
+        }
+        return `<fn ${this.name}>`
     }
 }

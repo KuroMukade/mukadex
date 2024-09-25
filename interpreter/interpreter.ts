@@ -48,9 +48,14 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
     }
 
     visitFunctionStmt(stmt: Stmt.Function): null {
-        const fn = new MukadexFunction(stmt, this.environment);
+        const fnName = stmt.name.lexeme;
+        const fn = new MukadexFunction(fnName, stmt.fn, this.environment);
         this.environment.define(stmt.name.lexeme, fn);
         return null;
+    }
+
+    visitFunctionExpr(expr: Expr.Function): Object | null {
+        return new MukadexFunction(null, expr, this.environment);
     }
 
     public executeBlock(statements: Stmt[], environment: Environment) {

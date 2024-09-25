@@ -1,4 +1,5 @@
 import {Token} from "./token/token"
+import {Stmt} from "./Stmt"
 
 export abstract class Expr {
   abstract accept<T>(visitor: Visitor<T>): T
@@ -12,6 +13,7 @@ export interface Visitor<T> {
     visitLogicalExpr(expr: Expr.Logical): T;
     visitUnaryExpr(expr: Expr.Unary): T;
     visitCallExpr(expr: Expr.Call): T;
+    visitFunctionExpr(expr: Expr.Function): T;
     visitVariableExpr(expr: Expr.Variable): T;
 }
 
@@ -113,6 +115,20 @@ export namespace Expr {
         this.callee = callee;
         this.paren = paren;
         this.args = args;
+      }
+    }
+
+    export class Function implements Expr {
+      readonly params: Token[];
+      readonly body: Stmt[];
+
+      accept<T>(visitor: Visitor<T>) {
+          return visitor.visitFunctionExpr(this);
+      }
+
+      constructor(params: Token[], body: Stmt[]) {
+        this.params = params;
+        this.body = body;
       }
     }
 

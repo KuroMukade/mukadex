@@ -126,6 +126,9 @@ class Parser {
             return new Expr_1.Expr.Literal(true);
         if (this.match(types_1.TokenType.NIL))
             return new Expr_1.Expr.Literal(null);
+        if (this.match(types_1.TokenType.FUN)) {
+            return this.functionBody('function');
+        }
         if (this.match(types_1.TokenType.NUMBER, types_1.TokenType.STRING)) {
             return new Expr_1.Expr.Literal(this.previous().literal);
         }
@@ -291,8 +294,14 @@ class Parser {
         }
         return statements;
     }
-    function(kind) {
-        const name = this.consume(types_1.TokenType.IDENTIFIER, `Expect ${kind} name.`);
+    checkNext(tokenType) {
+        if (this.isAtEnd())
+            return false;
+        if (this.tokens[this.current + 1].type === types_1.TokenType.EOF)
+            return false;
+        return this.tokens[this.current + 1].type === tokenType;
+    }
+    functionBody(kind) {
         this.consume(types_1.TokenType.LEFT_PAREN, `Expect '(' after ${kind}.`);
         const parameters = [];
         if (!this.check(types_1.TokenType.RIGHT_PAREN)) {
@@ -306,13 +315,18 @@ class Parser {
         this.consume(types_1.TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
         this.consume(types_1.TokenType.LEFT_BRACE, `Expect '{' before ${kind} body.`);
         const body = this.block();
-        return new Stmt_1.Stmt.Function(name, parameters, body);
+        return new Expr_1.Expr.Function(parameters, body);
+    }
+    function(kind) {
+        const name = this.consume(types_1.TokenType.IDENTIFIER, `Expect ${kind} name.`);
+        return new Stmt_1.Stmt.Function(name, this.functionBody(kind));
     }
     declaration() {
         try {
             if (this.match(types_1.TokenType.VAR))
                 return this.varDeclaration();
-            if (this.match(types_1.TokenType.FUN)) {
+            if (this.check(types_1.TokenType.FUN) && this.checkNext(types_1.TokenType.IDENTIFIER)) {
+                this.consume(types_1.TokenType.FUN, null);
                 return this.function("function");
             }
             return this.statement();

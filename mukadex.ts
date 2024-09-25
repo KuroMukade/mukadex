@@ -39,7 +39,6 @@ export class Mukadex {
 
         const parser = new Parser(tokens);
         const statements = parser.parse();
-        console.log({statements});
 
         if (this.hasError) return;
 

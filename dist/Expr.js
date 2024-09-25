@@ -92,6 +92,18 @@ exports.Expr = Expr;
         }
     }
     Expr.Call = Call;
+    class Function {
+        params;
+        body;
+        accept(visitor) {
+            return visitor.visitFunctionExpr(this);
+        }
+        constructor(params, body) {
+            this.params = params;
+            this.body = body;
+        }
+    }
+    Expr.Function = Function;
     class Variable {
         name;
         accept(visitor) {

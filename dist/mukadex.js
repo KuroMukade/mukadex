@@ -33,7 +33,6 @@ class Mukadex {
         const tokens = scanner.scanTokens();
         const parser = new parser_1.Parser(tokens);
         const statements = parser.parse();
-        console.log({ statements });
         if (this.hasError)
             return;
         this.interpreter.interpret(statements);

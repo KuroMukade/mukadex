@@ -138,7 +138,9 @@ export class Parser {
         if (this.match(TokenType.FALSE)) return new Expr.Literal(false);
         if (this.match(TokenType.TRUE)) return new Expr.Literal(true);
         if (this.match(TokenType.NIL)) return new Expr.Literal(null);
-
+        if (this.match(TokenType.FUN)) {
+            return this.functionBody('function');
+        }
         if (this.match(TokenType.NUMBER, TokenType.STRING)) {
             return new Expr.Literal(this.previous().literal);
         }
@@ -331,10 +333,14 @@ export class Parser {
         return statements;
     }
 
-    private function(kind: "function" | "method") {
-        const name = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name.`);
-        this.consume(TokenType.LEFT_PAREN, `Expect '(' after ${kind}.`);
+    private checkNext(tokenType: TokenType) {
+        if (this.isAtEnd()) return false;
+        if (this.tokens[this.current + 1].type === TokenType.EOF) return false;
+        return this.tokens[this.current + 1].type === tokenType;
+    }
 
+    private functionBody(kind: "function" | "method") {
+        this.consume(TokenType.LEFT_PAREN, `Expect '(' after ${kind}.`);
         const parameters: Token[] = [];
 
         if (!this.check(TokenType.RIGHT_PAREN)) {
@@ -351,13 +357,19 @@ export class Parser {
         this.consume(TokenType.LEFT_BRACE, `Expect '{' before ${kind} body.`);
 
         const body = this.block();
-        return new Stmt.Function(name, parameters, body);
+        return new Expr.Function(parameters, body);
+    }
+
+    private function(kind: "function" | "method"): Stmt.Function {
+        const name = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name.`);
+        return new Stmt.Function(name, this.functionBody(kind));
     }
 
     private declaration(): Stmt | null {
         try {
             if (this.match(TokenType.VAR)) return this.varDeclaration();
-            if (this.match(TokenType.FUN)) {
+            if (this.check(TokenType.FUN) && this.checkNext(TokenType.IDENTIFIER)) {
+                this.consume(TokenType.FUN, null);
                 return this.function("function");
             }
             return this.statement();
@@ -393,7 +405,6 @@ export class Parser {
 
     private call(): Expr {
         let expr: Expr = this.primary();
-
         while (true) {
             if (this.match(TokenType.LEFT_PAREN)) {
                 expr = this.finishCall(expr);
