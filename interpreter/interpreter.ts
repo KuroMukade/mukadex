@@ -146,16 +146,17 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
     }
 
     visitVarStmt(stmt: Stmt.Var): void {
+        /**
+         * We pass null to assign value to the variable by default
+         * var a;
+         * print a; // "nil"
+         */
         let value: Object | null = null;
+
         if (stmt.initializer !== null) {
             value = this.evaluate(stmt.initializer);
         }
 
-        /**
-         * We pass null to assign value to he var by default
-         * var a;
-         * print a; // "nil"
-         */
         this.environment.define(stmt.name.lexeme, value);
     }
 

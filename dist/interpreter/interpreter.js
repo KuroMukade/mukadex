@@ -116,15 +116,15 @@ class Interpreter {
         return value;
     }
     visitVarStmt(stmt) {
+        /**
+         * We pass null to assign value to the variable by default
+         * var a;
+         * print a; // "nil"
+         */
         let value = null;
         if (stmt.initializer !== null) {
             value = this.evaluate(stmt.initializer);
         }
-        /**
-         * We pass null to assign value to he var by default
-         * var a;
-         * print a; // "nil"
-         */
         this.environment.define(stmt.name.lexeme, value);
     }
     visitVariableExpr(expr) {

@@ -1,9 +1,10 @@
-fun anonymus(fn) {
-    fn("World!");
-    return;
-}
+var a = "Global";
+{
+    fun say() {
+        print a;
+    }
 
-anonymus(fun(name) {
-    var greet = "Hello, " + name;
-    print greet;
-});
+    say();
+    var a = "Local";
+    say();
+}

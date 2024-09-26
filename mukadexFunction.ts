@@ -15,6 +15,7 @@ export class MukadexFunction implements MukadexCallable {
 
     callFn(interpreter: Interpreter, args: Object[]) {
         const environment = new Environment(this.closure);
+        
         for (let i = 0; i < this.declaration.params.length; i++) {
             const name = this.declaration.params[i].lexeme;
             const value = args[i];
@@ -25,7 +26,7 @@ export class MukadexFunction implements MukadexCallable {
         try {
             interpreter.executeBlock(this.declaration.body, environment);
         } catch (e) {
-            // check if we throw to return, not the error one
+            // check for throwing return. Not handling any errors here
             if (e instanceof Return) {
                 const returnValue = e;
                 return returnValue.value;
