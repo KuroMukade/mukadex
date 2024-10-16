@@ -5,7 +5,7 @@ import { Token } from "token/token";
 import { Mukadex } from "mukadex";
 
 /**
- * Static analyzator
+ * Static analyzer
  * Used for single syntax tree walking before the interpreter start executing it.
  * It visits each node, but static analysis is different from the interpreter's dynamic execution:
  * 
@@ -67,10 +67,82 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
 
     private resolveLocal(expr: Expr, name: Token) {
         for (let i = this.scopes.length - 1; i >= 0; i--) {
-            if (!this.scopes[i].has(name.lexeme)) return;
+            if (!this.scopes[i].has(name.lexeme)) continue;
 
             this.interpreter.resolve(expr, this.scopes.length - 1 - i);
         }
+    }
+
+    visitExpressionStmt(stmt: Stmt.Expression): void {
+        this.resolve(stmt.expression);
+    }
+
+    visitIfStmt(stmt: Stmt.If): void {
+        this.resolve(stmt.condition);
+        this.resolve(stmt.thenBranch);
+        
+        if (stmt.elseBranch) {
+            this.resolve(stmt.elseBranch)
+        }
+    }
+
+    visitPrintStmt(stmt: Stmt.Print): void {
+        this.resolve(stmt.expression);
+    }
+
+    visitReturnStmt(stmt: Stmt.Return): void {
+        if (stmt.value) {
+            this.resolve(stmt.value);
+        }
+    }
+
+    visitWhileStmt(stmt: Stmt.While): void {
+        this.resolve(stmt.condition);
+        this.resolve(stmt.body);
+    }
+
+    visitBinaryExpr(expr: Expr.Binary): void {
+        this.resolve(expr.left);
+        this.resolve(expr.right);
+    }
+
+    visitCallExpr(expr: Expr.Call): void {
+        this.resolve(expr.callee);
+
+        for (const arg of expr.args) {
+            this.resolve(arg);
+        }
+    }
+
+    visitGroupingExpr(expr: Expr.Grouping): void {
+        this.resolve(expr.expression);
+    }
+
+    /**
+     * A literal expression doesn’t mention any variables and doesn’t contain
+     * any sub-expressions so there is no work to do.
+     */
+    visitLiteralExpr(expr: Expr.Literal): void {
+        return;
+    }
+
+    visitLogicalExpr(expr: Expr.Logical): void {
+        this.resolve(expr.left);
+        this.resolve(expr.right);
+    }
+
+    visitUnaryExpr(expr: Expr.Unary): void {
+        this.resolve(expr.right);
+    }
+
+    visitFunctionStmt(stmt: Stmt.Function): void {
+        this.declare(stmt.name);
+        this.define(stmt.name);
+        this.resolveFunction(stmt);
+    }
+
+    visitFunctionExpr(expr: Expr.Function): void {
+        this.resolve(expr);
     }
 
     visitAssignExpr(expr: Expr.Assign): void {
@@ -78,7 +150,15 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
         this.resolveLocal(expr, expr.name);
     }
 
-    
+    private resolveFunction(func: Stmt.Function) {
+        this.beginScope();
+        for (const param of func.fn.params) {
+            this.declare(param);
+            this.define(param);
+        }
+        this.resolve(func.fn.body);
+        this.endScope();
+    }
 
     /**
      * Needed for Stmt's
@@ -120,12 +200,22 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
         this.scopes.pop();
     }
 
+    /**
+     * The first step of binding the variable.
+     * declare adds the variable in the innermost scope so that it shadows any outer one
+     * It marked as "not ready yet" by binding that name to false
+     */
     private declare(name: Token) {
         if (this.scopes.length === 0) return;
         const scope = this.scopes.at(-1);
         scope?.set(name.lexeme, false);
     }
 
+    /**
+     * After declaring variable we resolve its initializer expression in that same scope
+     * where the new variable exists but is unavailable. Once initializer expression is done, the var
+     * is ready for defining.
+     */
     private define(name: Token) {
         if (this.scopes.length === 0) return;
         const scope = this.scopes.at(-1);
