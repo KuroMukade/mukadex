@@ -8,6 +8,7 @@ import { Parser } from './parser/parser';
 import { Interpreter, RuntimeException } from './interpreter/interpreter';
 
 import { Scanner } from './scanner/scanner';
+import { Resolver } from './resolver/resolver';
 
 export class Mukadex {
     static hasError: boolean = false;
@@ -41,6 +42,8 @@ export class Mukadex {
         const statements = parser.parse();
 
         if (this.hasError) return;
+        const resolver = new Resolver(this.interpreter);
+        resolver.resolve(statements);
 
         this.interpreter.interpret(statements);
     }

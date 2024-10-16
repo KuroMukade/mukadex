@@ -6,6 +6,7 @@ const types_1 = require("./token/types");
 const parser_1 = require("./parser/parser");
 const interpreter_1 = require("./interpreter/interpreter");
 const scanner_1 = require("./scanner/scanner");
+const resolver_1 = require("./resolver/resolver");
 class Mukadex {
     static hasError = false;
     static hadRuntimeError = false;
@@ -35,6 +36,8 @@ class Mukadex {
         const statements = parser.parse();
         if (this.hasError)
             return;
+        const resolver = new resolver_1.Resolver(this.interpreter);
+        resolver.resolve(statements);
         this.interpreter.interpret(statements);
     }
     static error(token, message) {

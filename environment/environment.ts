@@ -31,6 +31,25 @@ export class Environment {
         this.enclosing = null;
     }
 
+    assignAt(distance: number, name: Token, value: Object) {
+        this.ancestor(distance).values.set(name.lexeme, value);
+    }
+
+    getAt(distance: number, name: string) {
+        return this.ancestor(distance).values.get(name);
+    }
+
+    ancestor(distance: number): Environment {
+        let environment: Environment = this;
+        for (let i = 0; i < distance; i++) {
+            if (environment.enclosing) {
+                environment = environment.enclosing;
+            }
+        }
+
+        return environment;
+    }
+
     /**
      * Assignment is not allowed to create new variable
      */

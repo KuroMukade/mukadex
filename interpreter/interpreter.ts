@@ -36,6 +36,7 @@ export interface MukadexCallable {
 export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void> {
     public globals = new Environment();
     private environment = this.globals;
+    private locals = new Map<Expr, number>();
 
     constructor() {
         this.globals.define('clock', {
@@ -141,6 +142,14 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
 
     visitAssignExpr(expr: Expr.Assign): Object | null {
         const value = this.evaluate(expr.value);
+        const distance = this.locals.get(expr);
+
+        if (distance) {
+            this.environment.assignAt(distance, expr.name, value);
+        } else {
+            this.globals.assign(expr.name, value);
+        }
+
         this.environment.assign(expr.name, value);
         return value;
     }
@@ -161,7 +170,15 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
     }
 
     visitVariableExpr(expr: Expr.Variable): Object | null {
-        return this.environment.get(expr.name);
+        return this.lookupVariable(expr.name, expr);
+    }
+
+    private lookupVariable(name: Token, expr: Expr) {
+        const distance = this.locals.get(expr);
+        if (distance) {
+            this.environment.getAt(distance, name.lexeme);
+        }
+        return this.globals.get(name);
     }
 
     visitGroupingExpr(expr: Expr.Grouping): Object {
@@ -331,5 +348,9 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
 
             throw new Error('Unhandled exception');
         }
+    }
+
+    resolve(expr: Expr, scopeDepth: number) {
+        this.locals.set(expr, scopeDepth);
     }
 }

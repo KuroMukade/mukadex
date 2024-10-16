@@ -28,6 +28,7 @@ exports.Return = Return;
 class Interpreter {
     globals = new environment_1.Environment();
     environment = this.globals;
+    locals = new Map();
     constructor() {
         this.globals.define('clock', {
             arity: () => 0,
@@ -112,6 +113,13 @@ class Interpreter {
     }
     visitAssignExpr(expr) {
         const value = this.evaluate(expr.value);
+        const distance = this.locals.get(expr);
+        if (distance) {
+            this.environment.assignAt(distance, expr.name, value);
+        }
+        else {
+            this.globals.assign(expr.name, value);
+        }
         this.environment.assign(expr.name, value);
         return value;
     }
@@ -128,7 +136,14 @@ class Interpreter {
         this.environment.define(stmt.name.lexeme, value);
     }
     visitVariableExpr(expr) {
-        return this.environment.get(expr.name);
+        return this.lookupVariable(expr.name, expr);
+    }
+    lookupVariable(name, expr) {
+        const distance = this.locals.get(expr);
+        if (distance) {
+            this.environment.getAt(distance, name.lexeme);
+        }
+        return this.globals.get(name);
     }
     visitGroupingExpr(expr) {
         return expr.expression;
@@ -267,6 +282,9 @@ class Interpreter {
             }
             throw new Error('Unhandled exception');
         }
+    }
+    resolve(expr, scopeDepth) {
+        this.locals.set(expr, scopeDepth);
     }
 }
 exports.Interpreter = Interpreter;

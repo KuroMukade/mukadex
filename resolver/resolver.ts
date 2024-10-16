@@ -1,8 +1,8 @@
 import { Stmt, Visitor as StmtVisitor } from "../Stmt";
 import { Expr, Visitor as ExprVisitor } from "../Expr";
 import { Interpreter } from "../interpreter/interpreter";
-import { Token } from "token/token";
-import { Mukadex } from "mukadex";
+import { Token } from "../token/token";
+import { Mukadex } from "../mukadex";
 
 /**
  * Static analyzer
@@ -165,15 +165,15 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
      * 
      * Apply visitor pattern to the syntax tree node
      */
-    private resolve(stmt: Stmt): void;
-    private resolve(statements: Stmt[]): void;
+    resolve(stmt: Stmt): void;
+    resolve(statements: Stmt[]): void;
 
     /**
      * Needed for expression resolving
      */
-    private resolve(expr: Expr): void;
+    resolve(expr: Expr): void;
 
-    private resolve(stmtOrExpr: Stmt | Stmt[] | Expr): void {
+    resolve(stmtOrExpr: Stmt | Stmt[] | Expr): void {
         if (stmtOrExpr instanceof Stmt) {
             stmtOrExpr.accept(this);
             return;
