@@ -44,7 +44,6 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
         this.beginScope();
         this.resolve(stmt.statements);
         this.endScope();
-        return null;
     }
 
     visitVarStmt(stmt: Stmt.Var) {
@@ -122,7 +121,7 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
      * A literal expression doesn’t mention any variables and doesn’t contain
      * any sub-expressions so there is no work to do.
      */
-    visitLiteralExpr(expr: Expr.Literal): void {
+    visitLiteralExpr(expr: Expr.Literal) {
         return;
     }
 
@@ -153,6 +152,7 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
     private resolveFunction(func: Stmt.Function) {
         this.beginScope();
         for (const param of func.fn.params) {
+            console.log({param})
             this.declare(param);
             this.define(param);
         }
@@ -161,24 +161,13 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
     }
 
     /**
-     * Needed for Stmt's
-     * 
      * Apply visitor pattern to the syntax tree node
      */
     resolve(stmt: Stmt): void;
     resolve(statements: Stmt[]): void;
-
-    /**
-     * Needed for expression resolving
-     */
     resolve(expr: Expr): void;
 
-    resolve(stmtOrExpr: Stmt | Stmt[] | Expr): void {
-        if (stmtOrExpr instanceof Stmt) {
-            stmtOrExpr.accept(this);
-            return;
-        }
-
+    resolve(stmtOrExpr: Stmt | Stmt[] | Expr) {
         if (Array.isArray(stmtOrExpr)) {
             for (const stmt of stmtOrExpr) {
                 this.resolve(stmt);
@@ -186,10 +175,7 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
             return;
         }
 
-        if (stmtOrExpr instanceof Expr) {
-            stmtOrExpr.accept(this);
-            return;
-        }
+        stmtOrExpr.accept(this);
     }
 
     private beginScope() {
