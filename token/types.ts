@@ -44,5 +44,6 @@ export enum TokenType {
     TRUE = "TRUE",
     VAR = "VAR",
     WHILE = "WHILE",
+    BREAK = "BREAK",
     EOF = "EOF",
 };

@@ -14,6 +14,7 @@ export interface Visitor<T> {
     visitPrintStmt(stmt: Stmt.Print): T;
     visitVarStmt(stmt: Stmt.Var): T;
     visitWhileStmt(stmt: Stmt.While): T;
+    visitBreakStmt(stmt: Stmt.Break): T;
 }
 
 export namespace Stmt {
@@ -125,5 +126,16 @@ export namespace Stmt {
       }
     }
 
+    export class Break implements Stmt {
+      keyword: Token;
+
+      constructor(keyword: Token) {
+        this.keyword = keyword;
+      }
+
+      accept<T>(visitor: Visitor<T>) {
+          return visitor.visitBreakStmt(this);
+      }
+    }
 };
 

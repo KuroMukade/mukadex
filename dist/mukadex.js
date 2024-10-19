@@ -38,6 +38,8 @@ class Mukadex {
             return;
         const resolver = new resolver_1.Resolver(this.interpreter);
         resolver.resolve(statements);
+        if (this.hasError)
+            return;
         this.interpreter.interpret(statements);
     }
     static error(token, message) {
@@ -57,4 +59,4 @@ class Mukadex {
     }
 }
 exports.Mukadex = Mukadex;
-Mukadex.main('example-3.txt');
+Mukadex.main('example-4.txt');

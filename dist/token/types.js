@@ -45,6 +45,7 @@ var TokenType;
     TokenType["TRUE"] = "TRUE";
     TokenType["VAR"] = "VAR";
     TokenType["WHILE"] = "WHILE";
+    TokenType["BREAK"] = "BREAK";
     TokenType["EOF"] = "EOF";
 })(TokenType || (exports.TokenType = TokenType = {}));
 ;

@@ -174,11 +174,17 @@ export class Parser {
         if (this.match(TokenType.IF)) return this.ifStatement();
         if (this.match(TokenType.PRINT)) return this.printStatement();
         if (this.match(TokenType.WHILE)) return this.whileStatement();
+        if (this.match(TokenType.BREAK)) return this.breakStatement();
         if (this.match(TokenType.RETURN)) return this.returnStatement();
         if (this.match(TokenType.LEFT_BRACE)) {
             return new Stmt.Block(this.block());
         }
         return this.expressionStatement();
+    }
+
+    private breakStatement() {
+        const token = this.consume(TokenType.SEMICOLON, "Expect ';' to come after return value.");
+        return new Stmt.Break(token);
     }
 
     private returnStatement(): Stmt {

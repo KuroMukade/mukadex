@@ -109,6 +109,10 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
         throw new Return(value);
     }
 
+    visitBreakStmt(stmt: Stmt.Break): void {
+        throw 'break';
+    }
+
     visitCallExpr(expr: Expr.Call): Object | null {
         const callee = this.evaluate(expr.callee);
         const args: Object[] = [];
@@ -126,7 +130,6 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
         return fn.callFn(this, args);
     }
 
-
     visitBlockStmt(stmt: Stmt.Block): null {
         this.executeBlock(stmt.statements, new Environment(this.environment));
         return null;
@@ -134,7 +137,14 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
 
     visitWhileStmt(stmt: Stmt.While): null {
         while (this.isTruthy(this.evaluate(stmt.condition))) {
-            this.execute(stmt.body);
+            try {
+                this.execute(stmt.body);
+            } catch (breakStmt) {
+                console.log('ALERT:::::::', breakStmt)
+                if (breakStmt === 'break') {
+                    break;
+                }
+            }
         }
 
         return null;

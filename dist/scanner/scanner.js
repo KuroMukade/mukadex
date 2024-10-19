@@ -22,6 +22,7 @@ const getKeywords = () => {
     keywords.set("this", types_1.TokenType.THIS);
     keywords.set("var", types_1.TokenType.VAR);
     keywords.set("while", types_1.TokenType.WHILE);
+    keywords.set("break", types_1.TokenType.BREAK);
     return keywords;
 };
 class Scanner {

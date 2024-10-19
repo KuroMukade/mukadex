@@ -89,6 +89,9 @@ class Interpreter {
         }
         throw new Return(value);
     }
+    visitBreakStmt(stmt) {
+        throw 'break';
+    }
     visitCallExpr(expr) {
         const callee = this.evaluate(expr.callee);
         const args = [];
@@ -107,7 +110,15 @@ class Interpreter {
     }
     visitWhileStmt(stmt) {
         while (this.isTruthy(this.evaluate(stmt.condition))) {
-            this.execute(stmt.body);
+            try {
+                this.execute(stmt.body);
+            }
+            catch (breakStmt) {
+                console.log('ALERT:::::::', breakStmt);
+                if (breakStmt === 'break') {
+                    break;
+                }
+            }
         }
         return null;
     }

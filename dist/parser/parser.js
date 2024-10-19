@@ -159,12 +159,18 @@ class Parser {
             return this.printStatement();
         if (this.match(types_1.TokenType.WHILE))
             return this.whileStatement();
+        if (this.match(types_1.TokenType.BREAK))
+            return this.breakStatement();
         if (this.match(types_1.TokenType.RETURN))
             return this.returnStatement();
         if (this.match(types_1.TokenType.LEFT_BRACE)) {
             return new Stmt_1.Stmt.Block(this.block());
         }
         return this.expressionStatement();
+    }
+    breakStatement() {
+        const token = this.consume(types_1.TokenType.SEMICOLON, "Expect ';' to come after return value.");
+        return new Stmt_1.Stmt.Break(token);
     }
     returnStatement() {
         const keyword = this.previous();

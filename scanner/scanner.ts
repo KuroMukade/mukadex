@@ -20,6 +20,7 @@ const getKeywords = () => {
     keywords.set("this", TokenType.THIS);
     keywords.set("var", TokenType.VAR);
     keywords.set("while", TokenType.WHILE);
+    keywords.set("break", TokenType.BREAK);
     return keywords;
 }
 

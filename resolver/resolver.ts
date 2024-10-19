@@ -20,6 +20,7 @@ type FunctionType = 'None' | 'Function' | 'FunctionExpression';
 export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
     private readonly interpreter: Interpreter;
     private currentFunction: FunctionType = 'None';
+    private isInLoop = false;
 
     /**
      * Each element in the stack represents single block scope
@@ -104,7 +105,14 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
 
     visitWhileStmt(stmt: Stmt.While): void {
         this.resolve(stmt.condition);
-        this.resolve(stmt.body);
+        this.resolveWhileStmt(stmt.body);
+    }
+
+    resolveWhileStmt(body: Stmt) {
+        this.isInLoop = true;
+        this.resolve(body);
+        this.isInLoop = false;
+        return;
     }
 
     visitBinaryExpr(expr: Expr.Binary): void {
@@ -185,6 +193,12 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
             this.endScope();
             this.currentFunction = enclosingFunction;
             return;
+        }
+    }
+
+    visitBreakStmt(stmt: Stmt.Break): void {
+        if (!this.isInLoop) {
+            Mukadex.error(stmt.keyword, `Can't use "break" outside loop`);
         }
     }
 

@@ -71,4 +71,4 @@ export class Mukadex {
     }
 }
 
-Mukadex.main('example-3.txt');
+Mukadex.main('example-4.txt');
