@@ -1,0 +1,4 @@
+var a = fun() {
+    return "Valid code";
+};
+print a();

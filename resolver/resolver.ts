@@ -4,6 +4,8 @@ import { Interpreter } from "../interpreter/interpreter";
 import { Token } from "../token/token";
 import { Mukadex } from "../mukadex";
 
+type FunctionType = 'None' | 'Function' | 'FunctionExpression';
+
 /**
  * Static analyzer
  * Used for single syntax tree walking before the interpreter start executing it.
@@ -17,6 +19,7 @@ import { Mukadex } from "../mukadex";
  */
 export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
     private readonly interpreter: Interpreter;
+    private currentFunction: FunctionType = 'None';
 
     /**
      * Each element in the stack represents single block scope
@@ -90,6 +93,10 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
     }
 
     visitReturnStmt(stmt: Stmt.Return): void {
+        if (this.currentFunction === 'None') {
+            Mukadex.error(stmt.keyword, `Can't return from top-level code.`);
+        }
+
         if (stmt.value) {
             this.resolve(stmt.value);
         }
@@ -137,11 +144,11 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
     visitFunctionStmt(stmt: Stmt.Function): void {
         this.declare(stmt.name);
         this.define(stmt.name);
-        this.resolveFunction(stmt);
+        this.resolveFunction(stmt, 'FunctionExpression');
     }
 
     visitFunctionExpr(expr: Expr.Function): void {
-        this.resolve(expr);
+        this.resolveFunction(expr, 'FunctionExpression');
     }
 
     visitAssignExpr(expr: Expr.Assign): void {
@@ -149,14 +156,36 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
         this.resolveLocal(expr, expr.name);
     }
 
-    private resolveFunction(func: Stmt.Function) {
+    private resolveFunction(func: Stmt.Function, type: FunctionType): void;
+    private resolveFunction(func: Expr.Function, type: FunctionType): void;
+
+    private resolveFunction(func: Stmt.Function | Expr.Function, type: FunctionType): void {
+        let enclosingFunction: FunctionType = type;
+        this.currentFunction = type;
+
         this.beginScope();
-        for (const param of func.fn.params) {
-            this.declare(param);
-            this.define(param);
+
+        if (func instanceof Stmt.Function) {
+            for (const param of func.fn.params) {
+                this.declare(param);
+                this.define(param);
+            }
+            this.resolve(func.fn.body);
+            this.endScope();
+            this.currentFunction = enclosingFunction;
+            return;
         }
-        this.resolve(func.fn.body);
-        this.endScope();
+
+        if (func instanceof Expr.Function) {
+            for (const param of func.params) {
+                this.declare(param);
+                this.define(param);
+            }
+            this.resolve(func.body);
+            this.endScope();
+            this.currentFunction = enclosingFunction;
+            return;
+        }
     }
 
     /**
@@ -193,6 +222,10 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
     private declare(name: Token) {
         if (this.scopes.length === 0) return;
         const scope = this.scopes.at(-1);
+
+        if (scope?.has(name.lexeme)) {
+            Mukadex.error(name, `A variable named "${name.lexeme}" already exists in this scope.`);
+        }
         scope?.set(name.lexeme, false);
     }
 

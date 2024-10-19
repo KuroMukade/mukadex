@@ -47,6 +47,8 @@ export class Mukadex {
         const resolver = new Resolver(this.interpreter);
         resolver.resolve(statements);
 
+        if (this.hasError) return;
+
         this.interpreter.interpret(statements);
     }
 
@@ -69,4 +71,4 @@ export class Mukadex {
     }
 }
 
-Mukadex.main('example.txt');
+Mukadex.main('example-3.txt');

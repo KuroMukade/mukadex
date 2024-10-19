@@ -57,4 +57,4 @@ class Mukadex {
     }
 }
 exports.Mukadex = Mukadex;
-Mukadex.main('example.txt');
+Mukadex.main('example-3.txt');

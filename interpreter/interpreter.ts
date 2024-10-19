@@ -110,7 +110,6 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
     }
 
     visitCallExpr(expr: Expr.Call): Object | null {
-        console.log('call expr', expr)
         const callee = this.evaluate(expr.callee);
         const args: Object[] = [];
 
@@ -341,7 +340,6 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
     interpret(statements: Stmt[]) {
         try {
             for (const statement of statements) {
-                console.log(statements)
                 this.execute(statement);
             }
         } catch (error) {
