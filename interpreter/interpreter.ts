@@ -30,7 +30,7 @@ export class Return {
 
 export interface MukadexCallable {
     arity: () => number;
-    callFn(interpreter: Interpreter, args: Object[]);
+    callFn(interpreter: Interpreter, args: Object[]): Object | null;
 };
 
 export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void> {
@@ -110,6 +110,7 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
     }
 
     visitCallExpr(expr: Expr.Call): Object | null {
+        console.log('call expr', expr)
         const callee = this.evaluate(expr.callee);
         const args: Object[] = [];
 
@@ -175,8 +176,9 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
 
     private lookupVariable(name: Token, expr: Expr) {
         const distance = this.locals.get(expr);
-        if (distance) {
-            this.environment.getAt(distance, name.lexeme);
+
+        if (distance !== undefined) {
+            return this.environment.getAt(distance, name.lexeme);
         }
         return this.globals.get(name);
     }
@@ -339,6 +341,7 @@ export class Interpreter implements ExprVisitor<Object | null>, StmtVisitor<void
     interpret(statements: Stmt[]) {
         try {
             for (const statement of statements) {
+                console.log(statements)
                 this.execute(statement);
             }
         } catch (error) {

@@ -28,6 +28,7 @@ export class Mukadex {
 
     private static runFile(path: string): void {
         const bytes = readFileSync(path);
+
         this.run(bytes.toString('utf-8'));
 
         if (this.hasError) return;
@@ -42,6 +43,7 @@ export class Mukadex {
         const statements = parser.parse();
 
         if (this.hasError) return;
+
         const resolver = new Resolver(this.interpreter);
         resolver.resolve(statements);
 

@@ -152,7 +152,6 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
     private resolveFunction(func: Stmt.Function) {
         this.beginScope();
         for (const param of func.fn.params) {
-            console.log({param})
             this.declare(param);
             this.define(param);
         }

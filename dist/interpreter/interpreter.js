@@ -90,6 +90,7 @@ class Interpreter {
         throw new Return(value);
     }
     visitCallExpr(expr) {
+        console.log('call expr', expr);
         const callee = this.evaluate(expr.callee);
         const args = [];
         for (const argument of expr.args) {
@@ -140,8 +141,8 @@ class Interpreter {
     }
     lookupVariable(name, expr) {
         const distance = this.locals.get(expr);
-        if (distance) {
-            this.environment.getAt(distance, name.lexeme);
+        if (distance !== undefined) {
+            return this.environment.getAt(distance, name.lexeme);
         }
         return this.globals.get(name);
     }
@@ -273,6 +274,7 @@ class Interpreter {
     interpret(statements) {
         try {
             for (const statement of statements) {
+                console.log(statements);
                 this.execute(statement);
             }
         }
