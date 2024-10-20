@@ -1,0 +1,8 @@
+fun smth () {
+    var unused = "unused variable";
+
+    fun b() {
+        var inner = "ad";
+        inner;
+    }
+}

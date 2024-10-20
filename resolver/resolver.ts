@@ -21,14 +21,13 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
     private readonly interpreter: Interpreter;
     private currentFunction: FunctionType = 'None';
     private isInLoop = false;
-
     /**
      * Each element in the stack represents single block scope
      * 
      * ------------------
      * Key: Variable name
      * 
-     * Value: booleans
+     * Value: {initialized: boolean, isUsed: boolean}
      * ------------------
      * 
      * Booleans for values used for resolving declarations
@@ -38,7 +37,7 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
      * This used only for local block scopes.
      * Variables stored in global scopes are not tracked by resolver
      */
-    private readonly scopes: Map<string, boolean>[] = [];
+    private readonly scopes: Map<string, {initialized: boolean, isUsed: boolean}>[] = [];
 
     constructor(interpreter: Interpreter) {
         this.interpreter = interpreter;
@@ -60,12 +59,15 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
     }
 
     visitVariableExpr(expr: Expr.Variable): void {
-        if (this.scopes.length === 0 && this.scopes.at(-1)?.get(expr.name.lexeme) === false) {
-            Mukadex.error(expr.name, "Can't read local variable in its own initializer");
+        if (this.scopes.length > 0) {
+            this.resolveLocal(expr, expr.name);
+            return;
         }
 
-        this.resolveLocal(expr, expr.name);
-        return;
+        const isInitialized = this.scopes.at(-1)?.get(expr.name.lexeme)?.initialized;
+        if (isInitialized) return;
+
+        Mukadex.error(expr.name, "Can't read local variable in its own initializer");
     }
 
     private resolveLocal(expr: Expr, name: Token) {
@@ -77,6 +79,17 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
     }
 
     visitExpressionStmt(stmt: Stmt.Expression): void {
+        // Check for unused variables here
+        if (stmt.expression instanceof Expr.Variable) {
+            const currScope = this.scopes.at(-1);
+            if (currScope) {
+                const currVar = currScope.get(stmt.expression.name.lexeme);
+                if (currVar) {
+                    currScope.set(stmt.expression.name.lexeme, {...currVar, isUsed: true});   
+                }
+            }
+        }
+
         this.resolve(stmt.expression);
     }
 
@@ -221,10 +234,18 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
     }
 
     private beginScope() {
-        this.scopes.push(new Map<string, boolean>());
+        this.scopes.push(new Map<string, {initialized: boolean, isUsed: boolean}>());
     }
 
     private endScope() {
+        const currentScope = this.scopes.at(-1);
+        
+        for (const [variableName, value] of currentScope.entries?.()) {
+            if (!value.isUsed) {
+                console.log(`Warning!: "${variableName}" is assigned but never used.`)
+            }
+        }
+
         this.scopes.pop();
     }
 
@@ -240,7 +261,7 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
         if (scope?.has(name.lexeme)) {
             Mukadex.error(name, `A variable named "${name.lexeme}" already exists in this scope.`);
         }
-        scope?.set(name.lexeme, false);
+        scope?.set(name.lexeme, {initialized: false, isUsed: false});
     }
 
     /**
@@ -251,6 +272,6 @@ export class Resolver implements StmtVisitor<void>, ExprVisitor<void> {
     private define(name: Token) {
         if (this.scopes.length === 0) return;
         const scope = this.scopes.at(-1);
-        scope?.set(name.lexeme, true);
+        scope?.set(name.lexeme, {initialized: true, isUsed: false});
     }
 }

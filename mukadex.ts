@@ -71,4 +71,4 @@ export class Mukadex {
     }
 }
 
-Mukadex.main('example-4.txt');
+Mukadex.main('unused-local-variables.txt');

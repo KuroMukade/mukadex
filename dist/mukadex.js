@@ -59,4 +59,4 @@ class Mukadex {
     }
 }
 exports.Mukadex = Mukadex;
-Mukadex.main('example-4.txt');
+Mukadex.main('unused-local-variables.txt');
