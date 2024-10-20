@@ -332,7 +332,7 @@ class Parser {
             if (this.match(types_1.TokenType.VAR))
                 return this.varDeclaration();
             if (this.check(types_1.TokenType.FUN) && this.checkNext(types_1.TokenType.IDENTIFIER)) {
-                this.consume(types_1.TokenType.FUN, null);
+                this.consume(types_1.TokenType.FUN, '');
                 return this.function("function");
             }
             return this.statement();

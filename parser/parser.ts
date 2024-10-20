@@ -375,7 +375,7 @@ export class Parser {
         try {
             if (this.match(TokenType.VAR)) return this.varDeclaration();
             if (this.check(TokenType.FUN) && this.checkNext(TokenType.IDENTIFIER)) {
-                this.consume(TokenType.FUN, null);
+                this.consume(TokenType.FUN, '');
                 return this.function("function");
             }
             return this.statement();

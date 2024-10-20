@@ -58,13 +58,13 @@ export namespace Stmt {
 
     export class Return implements Stmt {
       readonly keyword: Token;
-      readonly value: Expr;
+      readonly value: Expr|null;
 
       accept<T>(visitor: Visitor<T>) {
           return visitor.visitReturnStmt(this);
       }
 
-      constructor(keyword: Token, value: Expr) {
+      constructor(keyword: Token, value: Expr|null) {
         this.keyword = keyword;
         this.value = value;
       }
@@ -73,13 +73,13 @@ export namespace Stmt {
     export class If implements Stmt {
       readonly condition: Expr;
       readonly thenBranch: Stmt;
-      readonly elseBranch: Stmt;
+      readonly elseBranch: Stmt|null;
 
       accept<T>(visitor: Visitor<T>) {
           return visitor.visitIfStmt(this);
       }
 
-      constructor(condition: Expr, thenBranch: Stmt, elseBranch: Stmt) {
+      constructor(condition: Expr, thenBranch: Stmt, elseBranch: Stmt|null) {
         this.condition = condition;
         this.thenBranch = thenBranch;
         this.elseBranch = elseBranch;
@@ -127,15 +127,16 @@ export namespace Stmt {
     }
 
     export class Break implements Stmt {
-      keyword: Token;
-
-      constructor(keyword: Token) {
-        this.keyword = keyword;
-      }
+      readonly keyword: Token;
 
       accept<T>(visitor: Visitor<T>) {
           return visitor.visitBreakStmt(this);
       }
+
+      constructor(keyword: Token) {
+        this.keyword = keyword;
+      }
     }
+
 };
 

@@ -61,13 +61,13 @@ export namespace Expr {
     }
 
     export class Literal implements Expr {
-      readonly value: Object;
+      readonly value: Object|null;
 
       accept<T>(visitor: Visitor<T>) {
           return visitor.visitLiteralExpr(this);
       }
 
-      constructor(value: Object) {
+      constructor(value: Object|null) {
         this.value = value;
       }
     }
